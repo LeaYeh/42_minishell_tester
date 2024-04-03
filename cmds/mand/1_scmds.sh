@@ -15,12 +15,6 @@ touch ""
 touch "  "
 /bin/rm -f "  "
 
-
-touch "
-"
-/bin/rm -f "
-"
-
 mkdir " "
 /bin/rm -rf " "
 
