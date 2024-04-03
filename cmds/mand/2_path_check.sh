@@ -40,7 +40,7 @@ export PATH=1
 echo $PATH
 echo 1
 
-env -i ./minishell
+/usr/bin/env -i ./minishell
 cd /bin/
 ls
 

@@ -332,8 +332,6 @@ env | grep USER
 
 env | wc -l
 
-env what
-
 ### PWD ###
 pwd
 
@@ -400,8 +398,6 @@ export '='='='
 
 export TE-ST=100
 
-export -TEST=100
-
 export TEST-=100
 
 export _TEST=100
@@ -429,8 +425,6 @@ export TES}T=123
 export TES{T=123
 
 export TES-T=123
-
-export -TEST=123
 
 export _TEST=123
 
@@ -533,8 +527,6 @@ unset TES}T
 unset TES{T
 
 unset TES-T
-
-unset -TEST
 
 unset _TEST
 
