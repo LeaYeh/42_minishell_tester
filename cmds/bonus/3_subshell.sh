@@ -47,3 +47,5 @@ rm file1 file2
 cat file1
 cat file2
 rm file1 file2
+
+(echo hi && (echo hi && (echo hi) && echo hi))
