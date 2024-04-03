@@ -205,17 +205,17 @@ pwd
 cd "$PWD/file_tests"
 pwd
 
-cd '/////' 2>/dev/null
+cd '/////' >/dev/null
 
 cd '/etc'
 
 cd '/var'
 
-cd "doesntexist" 2>/dev/null
+cd "doesntexist" >/dev/null
 
 cd ../../..
 
-cd "wtf" 2>/dev/null
+cd "wtf" >/dev/null
 
 cd ?
 
