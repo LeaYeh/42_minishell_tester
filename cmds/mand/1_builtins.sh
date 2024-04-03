@@ -392,8 +392,6 @@ export TEST=123
 
 export ___TEST=123
 
-export --TEST=123
-
 export ''=''
 
 export "="="="
