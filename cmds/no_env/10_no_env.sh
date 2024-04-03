@@ -2,9 +2,9 @@ unset PATH
 ls
 
 unset PATH
-env
+/usr/bin/env
 
-env
+/usr/bin/env
 
 export
 
