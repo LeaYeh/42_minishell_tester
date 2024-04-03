@@ -44,7 +44,7 @@ echo <<|< ok
 
 echo <<|> echo
 
-echo <<> echo
+echo <<>> echo
 
 echo <<<> ok
 
@@ -100,9 +100,9 @@ echo seg >< echo segf
 
 echo seg <<> echo segf
 
-echo seg <<<> echo segf
+echo seg <<<<<>> echo segf
 
-echo <<< echo seegf
+echo <<<<< echo seegf
 
 echo segf <|< echo super valid
 
@@ -131,11 +131,3 @@ EcHO -nnnn
 
 unset $PATH
 echo -nnnnnnnn
-
-
-
-
-
-
-
-
