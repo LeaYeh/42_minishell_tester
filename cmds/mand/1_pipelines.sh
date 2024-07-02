@@ -81,7 +81,7 @@ wd
 wf$PWDdqwdwqd
 stop3
 
-ls | cat << stop | ls -la | cat << stop1 | ls | cat << stop2 | ls -la > out | cat << 'stop3'
+ls | cat << stop | cat -enT | cat << stop1 | cat | cat << stop2 | cat -enT > out | cat << 'stop3'
 $USER
 ad
 stop
@@ -93,7 +93,7 @@ as $HOME
 stop3
 /bin/rm -f out
 
-ls | cat << stop | ls -la | cat << stop1 | ls | cat << stop2 | ls -la > > out | cat << stop3
+ls | cat << stop | cat -enT | cat << stop1 | cat | cat << stop2 | cat -enT >> out | cat << stop3
 fe
 wf
 fwe
@@ -107,7 +107,7 @@ cat Makefile | ls > out
 cat out
 /bin/rm -f out
 
-ls | cat << stop | ls -la > out0| cat << stop1 | ls | cat << stop2 | ls -la >> out | cat << stop3
+ls | cat << stop | cat -enT > out0| cat << stop1 | cat | cat << stop2 | cat -enT >> out| cat << stop3
 fe
 wf
 fwe
@@ -137,28 +137,28 @@ cat < Makefile > out >> out1 | wc -l out1 > out2
 
 |ls | ls
 
-ls|cat Makefile|ls
+cat Makefile|ls
 
-ls|cat Makefile|<wc -l
+cat Makefile|<wc -l
 
-ls|cat Makefile|> out
+cat Makefile|> out
 /bin/rm -f out
 
-ls|cat Makefile|>> out
+cat Makefile|>> out
 /bin/rm -f out
 
 
-ls|cat Makefile|cat<<asd>out
+cat Makefile|cat<<asd>out
 $USER
 asd
 /bin/rm -f out
 
-ls|cat Makefile|cat<<'asd'>out
+cat Makefile|cat<<'asd'>out
 $USER
 asd
 /bin/rm -f out
 
-ls|cat Makefile|cat<<"asd">out
+cat Makefile|cat<<"asd">out
 $USER
 asd
 /bin/rm -f out
