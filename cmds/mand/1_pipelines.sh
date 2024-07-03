@@ -50,7 +50,7 @@ rm -rf tmp_lol.c
 cat tmp_lol.c | cat > tmp_lol.c
 rm -rf tmp_lol.c
 
-ls | cat asd
+ls | cat -enT
 
 ls | cat << stop | grep "asd"
 is this good
@@ -65,7 +65,7 @@ awdaw
 daswd
 stop1
 
-ls | cat << stop | ls -la | cat << stop1 | ls | cat << stop2 | ls -la | cat << stop3
+ls | cat << stop | rev | tac << stop1 | rev | cat << stop2 | rev | tac << stop3
 $USER
 ad
 as $HOME

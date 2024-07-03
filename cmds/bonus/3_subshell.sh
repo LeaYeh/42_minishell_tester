@@ -33,7 +33,7 @@ cat out
 cat alt
 rm out alt
 
-ls | (ls | ls | echo 1 && (echo 2) > out1) > out2 && ls
+ls | (ls | cat | cat -enT && (echo 2) > out1) > out2 && ls
 cat out1
 cat out2
 rm out1 out2
@@ -52,4 +52,4 @@ rm file1 file2
 
 echo 1 | (sleep 1 && echo 2 && sleep 5) | < Makefile
 
-echo 1 | (sleep 1 && (echo 2 | echo 3) && sleep 5) | < Makefile
+echo 1 | (sleep 1 && (echo 2 | cat -enT) && sleep 5) | < Makefile

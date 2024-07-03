@@ -16,9 +16,9 @@ rm -f tmp_out
 
 (echo 1 && echo 2) | (/usr/bin/read -n 1 && grep 1)
 
-/bin/echo 42 | /bin/echo 42 || (/bin/echo 42)
+/bin/echo 42 | cat -enT || (/bin/echo 42)
 
-/bin/echo 42 | /bin/echo 42 && (/bin/echo 42)
+/bin/echo 42 | cat -enT && (/bin/echo 42)
 
 export bla='||' || echo 42 && echo 43
 
