@@ -50,7 +50,7 @@ rm -rf tmp_lol.c
 cat tmp_lol.c | cat > tmp_lol.c
 rm -rf tmp_lol.c
 
-ls | cat asd
+ls | cat -enT
 
 ls | cat << stop | grep "asd"
 is this good
