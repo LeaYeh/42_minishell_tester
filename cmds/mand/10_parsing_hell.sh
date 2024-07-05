@@ -264,11 +264,11 @@ p""''''w''''''""""""''''''''''''''''''''''''''''''''d
 
            ""'echo'"" ok
 
-echo "         |       "  | echo maybe
+echo "         |       "  | cat -enT
 
-echo "|"  | echo maybe
+echo "|"  | cat -enT
 
-echo '|'  | echo maybe
+echo '|'  | cat -enT
 
 echo -nnnnnnnnnnnn
 
