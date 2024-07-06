@@ -42,7 +42,7 @@ echo 1
 
 /usr/bin/env -i ./minishell
 cd /bin/
-ls
+ls -S
 
 touch tmp_x_file1
 tmp_x_file1
