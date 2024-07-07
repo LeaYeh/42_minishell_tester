@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env -S --default-signal bash
 
 # Change if you store the tester in another PATH
 export MINISHELL_PATH=./
