@@ -238,13 +238,20 @@ test_from_file() {
 				((ONE++))
 			fi
 			echo -ne "\033[1;33mSTD_ERR:\033[m "
-			# Filter out program name prefix before first colon from minishell error messages and "bash: line X" prefix from bash error messages
 			stderr_minishell=$(cat "$TMP_OUTDIR/tmp_err_minishell")
 			stderr_bash=$(cat "$TMP_OUTDIR/tmp_err_bash")
 			if grep -q '^bash: line [0-9]*:' <<< "$stderr_bash" ;
 			then
-				stderr_bash=$(sed 's/^bash: line [0-9]*:/:/' <<< "$stderr_bash" | sed '/^: syntax error near unexpected token/{n; d}')
+				# Normalize bash stderr by removing the program name and line number prefix
+				stderr_bash=$(sed 's/^bash: line [0-9]*:/:/' <<< "$stderr_bash")
+
+				# Normalize minishell stderr by removing its program name prefix
 				stderr_minishell=$(sed "s/^\\($MINISHELL_NAME: line [0-9]*:\\|$MINISHELL_NAME:\\)/:/" <<< "$stderr_minishell")
+
+				# Remove the next line after a specific syntax error message in bash stderr
+				stderr_bash=$(sed '/^: syntax error near unexpected token/{n; d}' <<< "$stderr_bash")
+
+				# Remove line number specification from heredoc errors in bash stderr
 				stderr_bash=$(sed '/^: warning: here-document at line [0-9]* /{s/at line [0-9]* //}' <<< "$stderr_bash")
 			fi
 			if ! diff -q <(echo "$stderr_minishell") <(echo "$stderr_bash") >/dev/null ;
