@@ -245,6 +245,7 @@ test_from_file() {
 			then
 				stderr_bash=$(sed 's/^bash: line [0-9]*:/:/' <<< "$stderr_bash" | sed '/^: syntax error near unexpected token/{n; d}')
 				stderr_minishell=$(sed "s/^\\($MINISHELL_NAME: line [0-9]*:\\|$MINISHELL_NAME:\\)/:/" <<< "$stderr_minishell")
+				stderr_bash=$(sed '/^: warning: here-document at line [0-9]* /{s/at line [0-9]* //}' <<< "$stderr_bash")
 			fi
 			if ! diff -q <(echo "$stderr_minishell") <(echo "$stderr_bash") >/dev/null ;
 			then
