@@ -46,7 +46,7 @@ echo <<|> echo
 
 echo <<>> echo
 
-echo <<<> ok
+echo <<> ok
 
 echo segfault <"<<<"<<amazing
 .
@@ -94,7 +94,7 @@ echo segfault <"    <   <   <"  <   <   amazing
 .
 amazing
 
-echo seg <>> echo seg
+echo seg < >> echo seg
 
 echo seg >< echo segf
 
