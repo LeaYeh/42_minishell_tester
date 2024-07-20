@@ -49,13 +49,10 @@ EechoE
 .echo.
 
 >echo>
-/bin/rm -f echo
 
-<echo<
-/bin/rm -f echo
+</bin/echo<
 
->>echo>>
-/bin/rm -f echo
+>>/usr/bin/echo>>
 
 |echo|
 
