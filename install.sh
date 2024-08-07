@@ -1,20 +1,9 @@
 #!/bin/bash
 
-cd $HOME
-rm -rf 42_minishell_tester
+rm -rf $HOME/42_minishell_tester
 
-mkdir 42_minishell_tester_tmp
+git clone https://github.com/LeaYeh/42_minishell_tester.git $HOME/42_minishell_tester
 
-cd 42_minishell_tester_tmp
-
-git clone https://github.com/LeaYeh/42_minishell_tester.git
-
-cp -r 42_minishell_tester $HOME
-
-cd $HOME
-rm -rf 42_minishell_tester_tmp
-
-cd $HOME/42_minishell_tester
 chmod +x $HOME/42_minishell_tester/tester.sh
 
 # List of rc files to update
