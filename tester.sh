@@ -32,6 +32,19 @@ adjust_to_minishell() {
 	MINISHELL_EXIT_MSG=$(echo -n "$MINISHELL_EXIT_MSG" | sed 's:[][\/.^$*]:\\&:g')
 }
 
+check_exit_stderr() {
+	if echo -n "exit" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q "exit" ; then
+		echo -e "\033[1;31mERROR: Your minishell prints 'exit' to STDOUT instead of STDERR."
+		echo -e "All the STDOUT tests will fail because bash prints 'exit' to STDERR.\033[m"
+		echo -e "Find more information here:"
+		echo -e "\033[4;94mhttps://github.com/LeaYeh/42_minishell_tester?tab=readme-ov-file#all-my-stdout-tests-fail\033[m"
+		echo
+		if ! prompt_with_enter "Are you sure you want to continue?" ; then
+			exit 1
+		fi
+	fi
+}
+
 BASH="bash --posix"
 
 export PATH="/bin:/usr/bin:/usr/sbin:$PATH"
@@ -97,6 +110,7 @@ main() {
 		exit 0
 	fi
 
+	check_exit_stderr
 	adjust_to_minishell
 
 	mkdir -p "$TMP_OUTDIR"
@@ -148,6 +162,17 @@ print_usage() {
 	echo -e "  #      --non-posix         Compare with normal bash instead of POSIX mode bash #"
 	echo -e "  #   -h|--help              Show this help message and exit                     #"
 	echo -e "  # **************************************************************************** #\033[m"
+}
+
+# Prompt the user for confirmation
+# Default is 'no', for 'yes' needs y/Y/yes/Yes + Enter key
+prompt_with_enter() {
+    echo -e "$1 [\e[1my\e[0m/\e[1mN\e[0m]"
+    read -rp "> "
+    if [[ "$REPLY" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+        return 0
+    fi
+    return 1
 }
 
 process_options() {
