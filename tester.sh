@@ -90,17 +90,17 @@ main() {
 	if [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 		echo -e "\033[1;33m# **************************************************************************** #"
 		echo "#                            MINISHELL NOT COMPILED                            #"
-		echo "#                              TRY TO COMPILE ...                              #"
+		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
-		if ! make -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
+		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
 		fi
-	elif ! make --question -C $MINISHELL_PATH ; then
+	elif ! make --question -s -C $MINISHELL_PATH ; then
 		echo -e "\033[1;33m# **************************************************************************** #"
 		echo "#                           MINISHELL NOT UP TO DATE                           #"
-		echo "#                              TRY TO COMPILE ...                              #"
+		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
-		if ! make -C $MINISHELL_PATH ; then
+		if ! make -s -C $MINISHELL_PATH ; then
 			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
 		fi
 	fi
