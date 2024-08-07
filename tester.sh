@@ -32,6 +32,8 @@ adjust_to_minishell() {
 	MINISHELL_EXIT_MSG=$(echo -n "$MINISHELL_EXIT_MSG" | sed 's:[][\/.^$*]:\\&:g')
 }
 
+BASH="bash --posix"
+
 export PATH="/bin:/usr/bin:/usr/sbin:$PATH"
 VALGRIND_FLAGS=(
 	--errors-for-leak-kinds=all
@@ -130,6 +132,7 @@ print_usage() {
 	echo -e "  #   -n|--no-env            Run any test with an empty environment              #"
 	echo -e "  #   -f|--file <file>       Run tests specified in a file                       #"
 	echo -e "  #      --dir <directory>   Run tests specified in a directory                  #"
+	echo -e "  #      --non-posix         Compare with normal bash instead of POSIX mode bash #"
 	echo -e "  #   -h|--help              Show this help message and exit                     #"
 	echo -e "  # **************************************************************************** #\033[m"
 }
@@ -166,6 +169,10 @@ process_options() {
 			-h|--help)
 				print_usage
 				exit 0
+				;;
+			--non-posix)
+				BASH="bash"
+				shift
 				;;
 			m|vm|b|vb|ne|vne|d|vd|a|va)
 				shift
@@ -367,7 +374,7 @@ run_test() {
 			fi
 			echo -n "$input" | eval "$env $MINISHELL_PATH/$EXECUTABLE" 2>"$TMP_OUTDIR/tmp_err_minishell" >"$TMP_OUTDIR/tmp_out_minishell"
 			exit_minishell=$?
-			echo -n "enable -n .$NL$input" | eval "$env bash --posix" 2>"$TMP_OUTDIR/tmp_err_bash" >"$TMP_OUTDIR/tmp_out_bash"
+			echo -n "enable -n .$NL$input" | eval "$env $BASH" 2>"$TMP_OUTDIR/tmp_err_bash" >"$TMP_OUTDIR/tmp_out_bash"
 			exit_bash=$?
 
 			# Check stdout

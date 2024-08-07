@@ -104,6 +104,9 @@ mstest -f <file>  # Run tests specified in a file
 mstest --dir <directory>  # Run tests specified in a directory
 ```
 ```
+mstest --non-posix  # Compare with normal bash instead of POSIX mode bash
+```
+```
 mstest -h  # Display the usage instructions
 ```
 
