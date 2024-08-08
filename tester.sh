@@ -72,7 +72,9 @@ main() {
 
 	process_options "$@"
 
-	update_tester
+	if [[ "$NO_UPDATE" != "true" ]] ; then
+		update_tester
+	fi
 
 	if [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 		echo -e "\033[1;33m# **************************************************************************** #"
@@ -121,7 +123,7 @@ update_tester() {
 	cd "$RUNDIR" || return 1
 	if git rev-parse --is-inside-work-tree >/dev/null 2>&1 ; then
 		echo "Checking for updates..."
-		git pull 2>/dev/null | head -n 1 | grep "Already up to date." || { echo "Tester updated" && cd - >/dev/null && exec "$0" "${SCRIPT_ARGS[@]}" ; exit ; }
+		git pull 2>/dev/null | head -n 1 | grep "Already up to date." || { echo "Tester updated." && cd - >/dev/null && exec "$0" --no-update "${SCRIPT_ARGS[@]}" ; exit ; }
 	fi
 	cd - >/dev/null
 }
@@ -146,6 +148,7 @@ print_usage() {
 	echo -e "  #   -f|--file <file>       Run tests specified in a file                       #"
 	echo -e "  #      --dir <directory>   Run tests specified in a directory                  #"
 	echo -e "  #      --non-posix         Compare with normal bash instead of POSIX mode bash #"
+	echo -e "  #      --no-update         Don't check for updates                             #"
 	echo -e "  #   -h|--help              Show this help message and exit                     #"
 	echo -e "  # **************************************************************************** #\033[m"
 }
@@ -185,6 +188,10 @@ process_options() {
 				;;
 			--non-posix)
 				BASH="bash"
+				shift
+				;;
+			--no-update)
+				NO_UPDATE="true"
 				shift
 				;;
 			m|vm|b|vb|ne|vne|d|vd|a|va)
