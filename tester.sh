@@ -406,8 +406,8 @@ run_test() {
 				((TEST_KO_OUT++))
 				((FAILED++))
 				mkdir -p "$OUTDIR/$dir_name/$file_name" 2>/dev/null
-				mv "$TMP_OUTDIR/tmp_out_minishell" "$OUTDIR/$dir_name/$file_name/stdout_minishell_$i" 2>/dev/null
-				mv "$TMP_OUTDIR/tmp_out_bash" "$OUTDIR/$dir_name/$file_name/stdout_bash_$i" 2>/dev/null
+				mv "$TMP_OUTDIR/tmp_out_minishell" "$OUTDIR/$dir_name/$file_name/${i}_stdout_minishell" 2>/dev/null
+				mv "$TMP_OUTDIR/tmp_out_bash" "$OUTDIR/$dir_name/$file_name/${i}_stdout_bash" 2>/dev/null
 			else
 				echo -ne "✅  "
 				((TEST_OK++))
@@ -433,8 +433,8 @@ run_test() {
 				((TEST_KO_ERR++))
 				((FAILED++))
 				mkdir -p "$OUTDIR/$dir_name/$file_name" 2>/dev/null
-				mv "$TMP_OUTDIR/tmp_err_minishell" "$OUTDIR/$dir_name/$file_name/stderr_minishell_$i" 2>/dev/null
-				mv "$TMP_OUTDIR/tmp_err_bash" "$OUTDIR/$dir_name/$file_name/stderr_bash_$i" 2>/dev/null
+				mv "$TMP_OUTDIR/tmp_err_minishell" "$OUTDIR/$dir_name/$file_name/${i}_stderr_minishell" 2>/dev/null
+				mv "$TMP_OUTDIR/tmp_err_bash" "$OUTDIR/$dir_name/$file_name/${i}_stderr_bash" 2>/dev/null
 			else
 				echo -ne "✅  "
 				((TEST_OK++))
@@ -493,7 +493,7 @@ run_test() {
 					echo -ne "❌ "
 					((LEAKS++))
 					mkdir -p "$OUTDIR/$dir_name/$file_name" 2>/dev/null
-					mv "$TMP_OUTDIR/tmp_valgrind_out" "$OUTDIR/$dir_name/$file_name/valgrind_out_$i" 2>/dev/null
+					mv "$TMP_OUTDIR/tmp_valgrind_out" "$OUTDIR/$dir_name/$file_name/${i}_valgrind_out" 2>/dev/null
 				else
 					echo -ne "✅ "
 				fi
