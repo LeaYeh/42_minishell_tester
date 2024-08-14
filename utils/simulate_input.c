@@ -17,8 +17,9 @@ enum exit_codes
 	EXEC_ERR	= -5
 };
 
-static int	parent(char *argv[], int pipe_fds[]);
+static int	parent(int pipe_fds[]);
 static void	child(char *argv[], int pipe_fds[]);
+static void	adjust_argv(char *argv[]);
 
 int	main(int argc, char *argv[])
 {
@@ -26,7 +27,7 @@ int	main(int argc, char *argv[])
 	pid_t	pid;
 	int		exit_code;
 
-	if (argc < 3)
+	if (argc < 2)
 		return (INPUT_ERR);
 	if (pipe(pipe_fds) == -1)
 		return (PIPE_ERR);
@@ -36,26 +37,32 @@ int	main(int argc, char *argv[])
 	else if (pid == 0)
 		child(argv, pipe_fds);
 	else
-		exit_code = parent(argv, pipe_fds);
+		exit_code = parent(pipe_fds);
 	return (exit_code);
 }
 
-static int	parent(char *argv[], int pipe_fds[])
+static int	parent(int pipe_fds[])
 {
-	bool	error = false;
+	char	buffer[1024];
+	ssize_t	bytes_read;
+	bool	error;
 	int		status;
 
 	close(pipe_fds[0]);
-	for (size_t i = 0; argv[2][i]; i++)
+	error = false;
+	while (!error && (bytes_read = read(STDIN_FILENO, buffer, sizeof(buffer))) > 0)
 	{
-		if (ioctl(STDIN_FILENO, TIOCSTI, &argv[2][i]) == -1)
+		for (size_t i = 0; !error && i < bytes_read; i++)
 		{
-			error = true;
-			break ;
+			if (ioctl(pipe_fds[1], TIOCSTI, &buffer[i]) == -1)
+			{
+				printf("fail\n");
+				error = true;
+			}
 		}
 	}
 	if (!error)
-		ioctl(STDIN_FILENO, TIOCSTI, "\n");
+		ioctl(pipe_fds[1], TIOCSTI, "\n");
 	close(pipe_fds[1]);
 	wait(&status);
 	return (WIFEXITED(status) ? WEXITSTATUS(status) : WTERMSIG(status) + 128);
@@ -66,6 +73,13 @@ static void	child(char *argv[], int pipe_fds[])
 	close(pipe_fds[1]);
 	dup2(pipe_fds[0], STDIN_FILENO);
 	close(pipe_fds[0]);
-	execvp(argv[1], (char *[]){basename(argv[1]), NULL});
+	adjust_argv(argv);
+	execvp(argv[0], &argv[1]);
 	exit(EXEC_ERR);
+}
+
+static void	adjust_argv(char *argv[])
+{
+	argv[0] = argv[1];
+	argv[1] = basename(argv[1]);
 }
