@@ -144,7 +144,7 @@ print_usage() {
 	echo -e "  #      --no-stdfds         Don't report fd leaks of stdin, stdout, and stderr  #"
 	echo -e "  #   -n|--no-env            Run any test with an empty environment              #"
 	echo -e "  #   -f|--file <file>       Run tests specified in a file                       #"
-	echo -e "  #      --dir <directory>   Run tests specified in a directory                  #"
+	echo -e "  #   -d|--dir <directory>   Run tests specified in a directory                  #"
 	echo -e "  #      --non-posix         Compare with normal bash instead of POSIX mode bash #"
 	echo -e "  #      --no-update         Don't check for updates                             #"
 	echo -e "  #   -h|--help              Show this help message and exit                     #"
