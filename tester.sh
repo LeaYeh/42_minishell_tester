@@ -32,17 +32,32 @@ adjust_to_minishell() {
 	MINISHELL_EXIT_MSG=$(echo -n "$MINISHELL_EXIT_MSG" | sed 's:[][\/.^$*]:\\&:g')
 }
 
+# Check if minishell prints 'exit' to STDERR and not STDOUT
 check_exit_stderr() {
-	if echo -n "exit 0" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$' ; then
-		echo -e "\033[1;31mERROR: Your minishell prints 'exit' to STDOUT instead of STDERR."
-		echo -e "All the STDOUT tests will fail because bash prints 'exit' to STDERR.\033[m"
-		echo -e "Find more information here:"
-		echo -e "\033[4;94mhttps://github.com/LeaYeh/42_minishell_tester?tab=readme-ov-file#all-my-stdout-tests-fail\033[m"
-		echo
-		if ! prompt_with_enter "Are you sure you want to continue?" ; then
-			exit 1
-		fi
+	echo -n "exit 0" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$'
+	is_stdout_exit_builtin=$?
+	echo -n "" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$'
+	is_stdout_exit_eof=$?
+
+	if [[ $is_stdout_exit_builtin -eq 0 && $is_stdout_exit_eof -eq 0 ]] ; then
+		reason="when calling the 'exit' builtin and when receiving CTRL+D (EOF)"
+	elif [[ $is_stdout_exit_builtin -eq 0 ]] ; then
+		reason="when calling the 'exit' builtin"
+	elif [[ $is_stdout_exit_eof -eq 0 ]] ; then
+		reason="when receiving CTRL+D (EOF)"
+	else
+		return 0
 	fi
+
+	echo -e "\033[1;31mERROR: Your minishell prints 'exit' to STDOUT instead of STDERR $reason."
+	echo -e "All the STDOUT tests will fail because bash prints 'exit' to STDERR.\033[m"
+	echo -e "Find more information here:"
+	echo -e "\033[4;94mhttps://github.com/LeaYeh/42_minishell_tester?tab=readme-ov-file#all-my-stdout-tests-fail\033[m"
+	echo
+	if ! prompt_with_enter "Are you sure you want to continue?" ; then
+		return 1
+	fi
+	return 0
 }
 
 BASH="bash --posix"
@@ -105,7 +120,9 @@ main() {
 		exit 0
 	fi
 
-	check_exit_stderr
+	if ! check_exit_stderr ; then
+		exit 1
+	fi
 	adjust_to_minishell
 
 	mkdir -p "$TMP_OUTDIR"
