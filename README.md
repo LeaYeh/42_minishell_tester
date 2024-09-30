@@ -10,7 +10,7 @@
 - File descriptor leak checks.
 - Crash detection.
 - Smart stderror comparison with bash.
-- Output failed test case and valgrind results to files.
+- Output failed test cases and valgrind results to files.
 - Updated test cases for updated subject (v7.1).
 - Subshell test cases.
 - Compatibility and tester speed-up with GitHub Actions.
