@@ -33,7 +33,7 @@ adjust_to_minishell() {
 }
 
 check_exit_stderr() {
-	if echo -n "exit" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q "exit" ; then
+	if echo -n "exit 0" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$' ; then
 		echo -e "\033[1;31mERROR: Your minishell prints 'exit' to STDOUT instead of STDERR."
 		echo -e "All the STDOUT tests will fail because bash prints 'exit' to STDERR.\033[m"
 		echo -e "Find more information here:"
