@@ -205,3 +205,5 @@ cd ~
 pwd
 cd -
 pwd
+
+/bin/echo $USER =intergalaktikus miaf*szomez

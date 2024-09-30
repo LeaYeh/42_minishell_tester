@@ -47,7 +47,7 @@
 
 /bin/echo '$USER' "$USER" "text  ' text"
 
-/bin/echo $USER =intergalaktikus miaf*szomez
+/bin/echo $USER =intergalaktikus miaf szomez
 
 /bin/echo -n"-n" bonjour
 
