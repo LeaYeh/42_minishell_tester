@@ -11,55 +11,50 @@ OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 # Test how minishell behaves to adjust the output filters to it
 adjust_to_minishell() {
 	# Get the prompt of the minishell in case it needs to be filtered out
-	MINISHELL_PROMPT=$(echo -n "" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | tail -n 1)
-	# Escape special characters
-	MINISHELL_PROMPT=$(echo -n "$MINISHELL_PROMPT" | sed 's:[][\/.^$*]:\\&:g')
-
-	# Check if a command gives as the first line of output exactly the prompt with the input
-	# If it does, the minishell uses readline
-	if echo -n "this_is_the_input" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | head -n 1 | grep -q "^${MINISHELL_PROMPT}this_is_the_input$" ; then
-		READLINE="true"
-	fi
+	MINISHELL_PROMPT=$(echo -n "" | eval $ENV READLINE_INTERCEPT_EXIT=1 READ_INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
+	MINISHELL_PROMPT=$(escape_special_chars "$MINISHELL_PROMPT")
 
 	# Get the name of the minishell by running a command that produces an error
 	# The name will then be filtered out from error messages
-	MINISHELL_ERR_NAME=$(echo -n "|" | $MINISHELL_PATH/$EXECUTABLE 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}')
-	MINISHELL_ERR_NAME=$(echo -n "$MINISHELL_ERR_NAME" | sed 's:[][\/.^$*]:\\&:g')
+	MINISHELL_ERR_NAME=$(echo -n "|" | eval $ENV $MINISHELL 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}')
+	MINISHELL_ERR_NAME=$(escape_special_chars "$MINISHELL_ERR_NAME")
 
 	# Get the exit message of the minishell in case it needs to be filtered out
 	# The exit message should always get printed to stderr, bash does it too (see `exit 2>/dev/null`)
-	MINISHELL_EXIT_MSG=$(echo -n "" | $MINISHELL_PATH/$EXECUTABLE 2>&1 >/dev/null | tail -n 1)
-	MINISHELL_EXIT_MSG=$(echo -n "$MINISHELL_EXIT_MSG" | sed 's:[][\/.^$*]:\\&:g')
+	MINISHELL_EXIT_MSG=$(echo -n "" | eval $ENV $MINISHELL 2>&1 >/dev/null | tail -n 1)
+	MINISHELL_EXIT_MSG=$(escape_special_chars "$MINISHELL_EXIT_MSG")
 }
 
-# Check if minishell prints 'exit' to STDERR and not STDOUT
-check_exit_stderr() {
-	echo -n "exit 0" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$'
-	is_stdout_exit_builtin=$?
-	echo -n "" | $MINISHELL_PATH/$EXECUTABLE 2>/dev/null | grep -q 'exit$'
-	is_stdout_exit_eof=$?
+# Check if minishell prints an exit message to STDOUT
+is_exit_stdout() {
+	stdout_exit_builtin=$(echo -n "exit" | eval $ENV $MINISHELL 2>/dev/null | sed "s/^$MINISHELL_PROMPT//")
+	stdout_exit_eof=$(echo -n "" | eval $ENV $MINISHELL 2>/dev/null | sed "s/^$MINISHELL_PROMPT//")
 
-	if [[ $is_stdout_exit_builtin -eq 0 && $is_stdout_exit_eof -eq 0 ]] ; then
+	if [[ -n $stdout_exit_builtin  && -n $stdout_exit_eof ]] ; then
 		reason="when calling the exit builtin and when receiving CTRL+D (EOF)"
-	elif [[ $is_stdout_exit_builtin -eq 0 ]] ; then
+	elif [[ -n $stdout_exit_builtin ]] ; then
 		reason="when calling the exit builtin"
-	elif [[ $is_stdout_exit_eof -eq 0 ]] ; then
+	elif [[ -n $stdout_exit_eof ]] ; then
 		reason="when receiving CTRL+D (EOF)"
 	else
-		return 0
+		return 1
 	fi
 
-	echo -e "\033[1;31mERROR: Your minishell prints 'exit' to STDOUT instead of STDERR $reason."
-	echo -e "All the STDOUT tests will fail because bash prints 'exit' to STDERR.\033[m"
+	echo -e "\033[1;31mERROR: Your minishell prints the exit message to STDOUT instead of STDERR $reason."
+	echo -e "All the STDOUT tests will fail because bash prints its exit message to STDERR.\033[m"
 	echo -e "Find more information here:"
 	echo -e "\033[4;94mhttps://github.com/LeaYeh/42_minishell_tester?tab=readme-ov-file#all-my-stdout-tests-fail\033[m"
 	echo
 	if ! prompt_with_enter "Are you sure you want to continue?" ; then
-		return 1
+		return 0
 	fi
-	return 0
+	return 1
 }
 
+UTILS="$RUNDIR/utils"
+LIB_INTERCEPT="$UTILS/libintercept.so"
+ENV="LD_PRELOAD=$LIB_INTERCEPT"
+MINISHELL="$MINISHELL_PATH/$EXECUTABLE"
 BASH="bash --posix"
 
 export PATH="/bin:/usr/bin:/usr/sbin:$PATH"
@@ -68,7 +63,7 @@ VALGRIND_FLAGS=(
 	--leak-check=full
 	--show-error-list=yes
 	--show-leak-kinds=all
-	--suppressions="$RUNDIR/utils/minishell.supp"
+	--suppressions="$UTILS/minishell.supp"
 	--trace-children=yes
 	--trace-children-skip="$(echo /bin/* /usr/bin/* /usr/sbin/* $(which norminette) | tr ' ' ',')"
 	--track-fds=all
@@ -120,10 +115,11 @@ main() {
 		exit 0
 	fi
 
-	if ! check_exit_stderr ; then
+	cc -O3 -shared -fPIC "$UTILS/readline_intercept.c" "$UTILS/read_intercept.c" -ldl -o "$LIB_INTERCEPT"
+	adjust_to_minishell
+	if is_exit_stdout ; then
 		exit 1
 	fi
-	adjust_to_minishell
 
 	mkdir -p "$TMP_OUTDIR"
 	process_tests "$@"
@@ -488,7 +484,7 @@ run_test() {
 	local no_env=${test_flags_ref[no_env]}
 
 	if [[ $no_env == "true" ]] ; then
-		env="env -i"
+		ENV="env -i $ENV"
 	fi
 	if  [[ $test_leaks == "true" ]] ; then
 		valgrind="$VALGRIND"
@@ -538,12 +534,12 @@ run_test() {
 
 			# Run the test
 			if [[ $test_leaks == "true" ]] ; then
-				echo -n "$input" | eval "$env $valgrind $MINISHELL_PATH/$EXECUTABLE" &>/dev/null
+				echo -n "$input" | eval $ENV $valgrind $MINISHELL &>/dev/null
 			fi
 			if [[ $test_stdout == "true" || $test_stderr == "true" || $test_exit_code == "true" || $test_crash == "true" ]] ; then
-				echo -n "$input" | eval "$env $MINISHELL_PATH/$EXECUTABLE" 2>"$TMP_OUTDIR/tmp_err_minishell" >"$TMP_OUTDIR/tmp_out_minishell"
+				echo -n "$input" | eval $ENV $MINISHELL 2>"$TMP_OUTDIR/tmp_err_minishell" >"$TMP_OUTDIR/tmp_out_minishell"
 				exit_minishell=$?
-				echo -n "enable -n .$NL$input" | eval "$env $BASH" 2>"$TMP_OUTDIR/tmp_err_bash" >"$TMP_OUTDIR/tmp_out_bash"
+				echo -n "enable -n .$NL$input" | eval $ENV $BASH 2>"$TMP_OUTDIR/tmp_err_bash" >"$TMP_OUTDIR/tmp_out_bash"
 				exit_bash=$?
 			fi
 
@@ -551,13 +547,8 @@ run_test() {
 			if [[ $test_stdout == "true" ]] ; then
 				echo -ne "\033[1;34mSTD_OUT:\033[m "
 				if [[ -n "$MINISHELL_PROMPT" ]] ; then
-					if [[ $READLINE == "true" ]] ; then
-						# Filter out the prompt line of readline from stdout
-						sed -i "/^$MINISHELL_PROMPT/d" "$TMP_OUTDIR/tmp_out_minishell"
-					else
-						# Filter out the prompt from stdout
-						sed -i "s/^$MINISHELL_PROMPT//" "$TMP_OUTDIR/tmp_out_minishell"
-					fi
+					# Filter out the prompt from stdout
+					sed -i "s/^$MINISHELL_PROMPT//" "$TMP_OUTDIR/tmp_out_minishell"
 				fi
 				if ! diff -q "$TMP_OUTDIR/tmp_out_minishell" "$TMP_OUTDIR/tmp_out_bash" >/dev/null ; then
 					echo -ne "❌  " | tr '\n' ' '
@@ -772,6 +763,10 @@ prompt_with_enter() {
         return 0
     fi
     return 1
+}
+
+escape_special_chars() {
+	echo -n "$1" | sed 's:[][\/.^$*]:\\&:g'
 }
 
 strip_ansi() {
