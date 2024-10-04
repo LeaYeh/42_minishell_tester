@@ -11,7 +11,7 @@ OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 # Test how minishell behaves to adjust the output filters to it
 adjust_to_minishell() {
 	# Get the prompt of the minishell in case it needs to be filtered out
-	MINISHELL_PROMPT=$(echo -n "" | eval $ENV READLINE_INTERCEPT_EXIT=1 READ_INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
+	MINISHELL_PROMPT=$(echo -n "" | eval $ENV INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
 	MINISHELL_PROMPT=$(escape_special_chars "$MINISHELL_PROMPT")
 
 	# Get the name of the minishell by running a command that produces an error
@@ -52,8 +52,9 @@ is_exit_stdout() {
 }
 
 UTILS="$RUNDIR/utils"
-LIB_INTERCEPT="$UTILS/libintercept.so"
-ENV="LD_PRELOAD=$LIB_INTERCEPT"
+LIBINTERCEPTDIR="$UTILS/libintercept"
+LIBINTERCEPT="$LIBINTERCEPTDIR/libintercept.so"
+ENV="LD_PRELOAD=$LIBINTERCEPT"
 MINISHELL="$MINISHELL_PATH/$EXECUTABLE"
 BASH="bash --posix"
 
@@ -115,7 +116,7 @@ main() {
 		exit 0
 	fi
 
-	cc -O3 -shared -fPIC "$UTILS/readline_intercept.c" "$UTILS/read_intercept.c" -ldl -o "$LIB_INTERCEPT"
+	make -C "$LIBINTERCEPTDIR" opt &>/dev/null
 	adjust_to_minishell
 	if is_exit_stdout ; then
 		exit 1
