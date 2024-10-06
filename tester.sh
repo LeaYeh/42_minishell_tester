@@ -10,19 +10,47 @@ OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 
 # Test how minishell behaves to adjust the output filters to it
 adjust_to_minishell() {
+	local minishell_stdout
+
+	# libintercept will exit the minishell at the first call of readline or read
+	minishell_stdout=$(echo -n "" | eval $ENV INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
+
+	# Get any message that minishell prints at the start
+	# head -1 keeps all but the last line, so it will drop a single line
+	MINISHELL_START_MSG_HEX=$(echo -n "$minishell_stdout" | head -n -1 | to_hex)
+
 	# Get the prompt of the minishell in case it needs to be filtered out
-	MINISHELL_PROMPT=$(echo -n "" | eval $ENV INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
-	MINISHELL_PROMPT=$(escape_special_chars "$MINISHELL_PROMPT")
+	MINISHELL_PROMPT_HEX=$(echo -n "$minishell_stdout" | tail -n 1 | to_hex)
 
 	# Get the name of the minishell by running a command that produces an error
 	# The name will then be filtered out from error messages
-	MINISHELL_ERR_NAME=$(echo -n "|" | eval $ENV $MINISHELL 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}')
-	MINISHELL_ERR_NAME=$(escape_special_chars "$MINISHELL_ERR_NAME")
+	MINISHELL_ERR_NAME_HEX=$(echo -n "|" | eval $ENV $MINISHELL 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}' | to_hex)
 
-	# Get the exit message of the minishell in case it needs to be filtered out
+	# Get the exit message of the minishell in stderr in case it needs to be filtered out
 	# The exit message should always get printed to stderr, bash does it too (see `exit 2>/dev/null`)
-	MINISHELL_EXIT_MSG=$(echo -n "" | eval $ENV $MINISHELL 2>&1 >/dev/null | tail -n 1)
-	MINISHELL_EXIT_MSG=$(escape_special_chars "$MINISHELL_EXIT_MSG")
+	# But the tester can also handle it in stdout
+	MINISHELL_EXIT_MSG_STDERR_EOF_HEX=$(echo -n "" | eval $ENV $MINISHELL 2>&1 >/dev/null | to_hex)
+	MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX=$(echo -n "exit" | eval $ENV $MINISHELL 2>&1 >/dev/null | to_hex)
+	if [[ "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX" == "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX" ]] ; then
+		MINISHELL_EXIT_MSG_STDERR_HEX="$MINISHELL_EXIT_MSG_STDERR_EOF_HEX"
+	else
+		MINISHELL_EXIT_MSG_STDERR_HEX=""
+	fi
+
+	# Get the exit messages of the minishell in stdout in case it needs to be filtered out
+	MINISHELL_EXIT_MSG_STDOUT_EOF_HEX=$(echo -n "" | eval $ENV $MINISHELL 2>/dev/null | to_hex | sed -E "s/^$MINISHELL_START_MSG_HEX//; s/(^ *|0a *| {2,})$MINISHELL_PROMPT_HEX/\1/g; s/^ *//")
+	MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX=$(echo -n "exit" | eval $ENV $MINISHELL 2>/dev/null | to_hex | sed -E "s/^$MINISHELL_START_MSG_HEX//; s/(^ *|0a *| {2,})$MINISHELL_PROMPT_HEX/\1/g; s/^ *//")
+	if [[ "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX" == "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX" ]] ; then
+		MINISHELL_EXIT_MSG_STDOUT_HEX="$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX"
+	else
+		MINISHELL_EXIT_MSG_STDOUT_HEX=""
+	fi
+
+	MINISHELL_START_MSG=$(from_hex "$MINISHELL_START_MSG_HEX")
+	MINISHELL_PROMPT=$(from_hex "$MINISHELL_PROMPT_HEX")
+	MINISHELL_ERR_NAME=$(from_hex "$MINISHELL_ERR_NAME_HEX")
+	MINISHELL_EXIT_MSG_STDERR=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_HEX")
+	MINISHELL_EXIT_MSG_STDOUT=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_HEX")
 }
 
 # Check if minishell prints an exit message to STDOUT
@@ -118,11 +146,7 @@ main() {
 
 	make -C "$LIBINTERCEPTDIR" opt &>/dev/null
 	adjust_to_minishell
-	if is_exit_stdout ; then
-		exit 1
-	fi
 
-	mkdir -p "$TMP_OUTDIR"
 	process_tests "$@"
 
 	if [[ $TEST_COUNT -gt 0 ]] ; then
@@ -538,18 +562,43 @@ run_test() {
 				echo -n "$input" | eval $ENV $valgrind $MINISHELL &>/dev/null
 			fi
 			if [[ $test_stdout == "true" || $test_stderr == "true" || $test_exit_code == "true" || $test_crash == "true" ]] ; then
-				echo -n "$input" | eval $ENV $MINISHELL 2>"$TMP_OUTDIR/tmp_err_minishell" >"$TMP_OUTDIR/tmp_out_minishell"
+				echo -n "$input" | eval $ENV $MINISHELL > >(to_hex > "$TMP_OUTDIR/tmp_out_minishell.hex") 2> >(to_hex > "$TMP_OUTDIR/tmp_err_minishell.hex")
 				exit_minishell=$?
-				echo -n "enable -n .$NL$input" | eval $ENV $BASH 2>"$TMP_OUTDIR/tmp_err_bash" >"$TMP_OUTDIR/tmp_out_bash"
+				echo -n "enable -n .$NL$input" | eval $ENV $BASH > >(to_hex > "$TMP_OUTDIR/tmp_out_bash.hex") 2> >(to_hex > "$TMP_OUTDIR/tmp_err_bash.hex")
 				exit_bash=$?
 			fi
 
 			# Check stdout
 			if [[ $test_stdout == "true" ]] ; then
 				echo -ne "\033[1;34mSTD_OUT:\033[m "
-				if [[ -n "$MINISHELL_PROMPT" ]] ; then
-					# Filter out the prompt from stdout
-					sed -i "s/^$MINISHELL_PROMPT//" "$TMP_OUTDIR/tmp_out_minishell"
+				if [[ -n "$MINISHELL_START_MSG_HEX" ]] ; then
+					# Filter out the start message from stdout
+					sed -i "s/^$MINISHELL_START_MSG_HEX//" "$TMP_OUTDIR/tmp_out_minishell.hex"
+				fi
+				if [[ -n "$MINISHELL_EXIT_MSG_STDOUT_HEX" ]] ; then
+					# Filter out the exit message from stdout
+					sed -i -E "s/$MINISHELL_EXIT_MSG_STDOUT_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_out_minishell.hex"
+				else
+					# Filter out the differing exit messages from stdout
+					if [[ -n "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX" ]] ; then
+						sed -i -E "s/$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_out_minishell.hex"
+					fi
+					if [[ -n "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX" ]] ; then
+						sed -i -E "s/$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_out_minishell.hex"
+					fi
+				fi
+				if [[ -n "$MINISHELL_PROMPT_HEX" ]] ; then
+					# Filter out the prompt at beginning of lines from stdout
+					sed -i -E "s/(^ *|0a *| {2,})$MINISHELL_PROMPT_HEX/\1/g" "$TMP_OUTDIR/tmp_out_minishell.hex"
+				fi
+				from_hex <"$TMP_OUTDIR/tmp_out_minishell.hex" >"$TMP_OUTDIR/tmp_out_minishell"
+				from_hex <"$TMP_OUTDIR/tmp_out_bash.hex" >"$TMP_OUTDIR/tmp_out_bash"
+				# Filter out all occurrences of the prompt from stdout if still not same as bash
+				if [[ -n "$MINISHELL_PROMPT_HEX" ]] ; then
+					if ! diff -q "$TMP_OUTDIR/tmp_out_minishell" "$TMP_OUTDIR/tmp_out_bash" >/dev/null ; then
+						sed -i "s/$MINISHELL_PROMPT_HEX//g" "$TMP_OUTDIR/tmp_out_minishell.hex"
+						from_hex <"$TMP_OUTDIR/tmp_out_minishell.hex" >"$TMP_OUTDIR/tmp_out_minishell"
+					fi
 				fi
 				if ! diff -q "$TMP_OUTDIR/tmp_out_minishell" "$TMP_OUTDIR/tmp_out_bash" >/dev/null ; then
 					echo -ne "❌  " | tr '\n' ' '
@@ -567,10 +616,20 @@ run_test() {
 			# Check stderr
 			if [[ $test_stderr == "true" ]] ; then
 				echo -ne "\033[1;33mSTD_ERR:\033[m "
-				if [[ -n "$MINISHELL_EXIT_MSG" ]] ; then
+				if [[ -n "$MINISHELL_EXIT_MSG_STDERR_HEX" ]] ; then
 					# Filter out the exit message from stderr
-					sed -i "/^$MINISHELL_EXIT_MSG$/d" "$TMP_OUTDIR/tmp_err_minishell"
+					sed -i -E "s/$MINISHELL_EXIT_MSG_STDERR_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_err_minishell.hex"
+				else
+					# Filter out the differing exit messages from stderr
+					if [[ -n "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX" ]] ; then
+						sed -i -E "s/$MINISHELL_EXIT_MSG_STDERR_EOF_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_err_minishell.hex"
+					fi
+					if [[ -n "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX" ]] ; then
+						sed -i -E "s/$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_err_minishell.hex"
+					fi
 				fi
+				from_hex <"$TMP_OUTDIR/tmp_err_minishell.hex" >"$TMP_OUTDIR/tmp_err_minishell"
+				from_hex <"$TMP_OUTDIR/tmp_err_bash.hex" >"$TMP_OUTDIR/tmp_err_bash"
 				if grep -q '^bash: line [0-9]*:' "$TMP_OUTDIR/tmp_err_bash" ; then
 					# Normalize bash stderr by removing the program name and line number prefix
 					sed -i 's/^bash: line [0-9]*:/:/' "$TMP_OUTDIR/tmp_err_bash"
@@ -764,6 +823,22 @@ prompt_with_enter() {
         return 0
     fi
     return 1
+}
+
+to_hex() {
+	if [[ $# -gt 0 ]] ; then
+		od -An -tx1 -v <<< "$*" | tr -d '\n' | sed 's/^ *//'
+	else
+		od -An -tx1 -v | tr -d '\n' | sed 's/^ *//'
+	fi
+}
+
+from_hex() {
+	if [[ $# -gt 0 ]] ; then
+		printf "$(echo "$*" | tr -d ' ' | sed 's/\(..\)/\\x\1/g')"
+	else
+		printf "$(tr -d ' ' | sed 's/\(..\)/\\x\1/g')"
+	fi
 }
 
 escape_special_chars() {
