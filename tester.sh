@@ -104,32 +104,6 @@ adjust_to_minishell() {
 	fi
 }
 
-# Check if minishell prints an exit message to STDOUT
-is_exit_stdout() {
-	stdout_exit_builtin=$(echo -n "exit" | eval $ENV $MINISHELL 2>/dev/null | sed "s/^$MINISHELL_PROMPT//")
-	stdout_exit_eof=$(echo -n "" | eval $ENV $MINISHELL 2>/dev/null | sed "s/^$MINISHELL_PROMPT//")
-
-	if [[ -n $stdout_exit_builtin  && -n $stdout_exit_eof ]] ; then
-		reason="when calling the exit builtin and when receiving CTRL+D (EOF)"
-	elif [[ -n $stdout_exit_builtin ]] ; then
-		reason="when calling the exit builtin"
-	elif [[ -n $stdout_exit_eof ]] ; then
-		reason="when receiving CTRL+D (EOF)"
-	else
-		return 1
-	fi
-
-	echo -e "\033[1;31mERROR: Your minishell prints the exit message to STDOUT instead of STDERR $reason."
-	echo -e "All the STDOUT tests will fail because bash prints its exit message to STDERR.\033[m"
-	echo -e "Find more information here:"
-	echo -e "\033[4;94mhttps://github.com/LeaYeh/42_minishell_tester?tab=readme-ov-file#all-my-stdout-tests-fail\033[m"
-	echo
-	if ! prompt_with_enter "Are you sure you want to continue?" ; then
-		return 0
-	fi
-	return 1
-}
-
 UTILS="$RUNDIR/utils"
 LIBINTERCEPTDIR="$UTILS/libintercept"
 LIBINTERCEPT="$LIBINTERCEPTDIR/libintercept.so"
@@ -867,17 +841,6 @@ update_tester() {
 	cd - >/dev/null
 }
 
-# Prompt the user for confirmation
-# Default is 'no', for 'yes' needs y/Y/yes/Yes + Enter key
-prompt_with_enter() {
-    echo -e "$1 [\e[1my\e[0m/\e[1mN\e[0m]"
-    read -rp "> "
-    if [[ "$REPLY" =~ ^[Yy]([Ee][Ss])?$ ]]; then
-        return 0
-    fi
-    return 1
-}
-
 to_hex() {
 	if [[ $# -gt 0 ]] ; then
 		od -An -tx1 -v <<< "$*" | tr -d '\n' | sed 's/^ *//'
@@ -892,10 +855,6 @@ from_hex() {
 	else
 		printf "$(tr -d ' ' | sed 's/\(..\)/\\x\1/g')"
 	fi
-}
-
-escape_special_chars() {
-	echo -n "$1" | sed 's:[][\/.^$*]:\\&:g'
 }
 
 strip_ansi() {
