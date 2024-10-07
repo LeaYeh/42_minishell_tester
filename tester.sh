@@ -50,7 +50,58 @@ adjust_to_minishell() {
 	MINISHELL_PROMPT=$(from_hex "$MINISHELL_PROMPT_HEX")
 	MINISHELL_ERR_NAME=$(from_hex "$MINISHELL_ERR_NAME_HEX")
 	MINISHELL_EXIT_MSG_STDERR=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_HEX")
+	MINISHELL_EXIT_MSG_STDERR_EOF_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX")
+	MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX")
 	MINISHELL_EXIT_MSG_STDOUT=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_HEX")
+	MINISHELL_EXIT_MSG_STDOUT_EOF_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX")
+	MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX")
+
+	if [[ -n $MINISHELL_START_MSG_HEX || -n $MINISHELL_PROMPT_HEX || -n $MINISHELL_ERR_NAME_HEX ||
+		-n $MINISHELL_EXIT_MSG_STDERR_HEX || -n $MINISHELL_EXIT_MSG_STDERR_EOF_HEX || -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX ||
+		-n $MINISHELL_EXIT_MSG_STDOUT_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_EOF_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX ]] ; then
+		echo -e "\033[1;36m# **************************************************************************** #"
+		echo "#                     ADJUSTED OUTPUT FILTERS FOR MINISHELL                    #"
+		echo -e "\033[1;36m# **************************************************************************** #\033[m"
+		if [[ -n $MINISHELL_START_MSG ]] ; then
+			echo -e "\033[1;36mStart Message:\033[0m"
+			echo -e "$MINISHELL_START_MSG"
+		fi
+		if [[ -n $MINISHELL_PROMPT ]] ; then
+			echo -e "\033[1;36mPrompt:\033[0m"
+			echo -e "$MINISHELL_PROMPT"
+		fi
+		if [[ -n $MINISHELL_ERR_NAME ]] ; then
+			echo -e "\033[1;36mError Message Name:\033[0m"
+			echo -e "$MINISHELL_ERR_NAME"
+		fi
+		if [[ -n $MINISHELL_EXIT_MSG_STDERR ]] ; then
+			echo -e "\033[1;36mExit Message Stderr:\033[0m"
+			echo -e "$MINISHELL_EXIT_MSG_STDERR"
+		else
+			if [[ -n $MINISHELL_EXIT_MSG_STDERR_EOF_HEX ]] ; then
+				echo -e "\033[1;36mExit Message Stderr EOF (Ctrl+D):\033[0m"
+				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX")"
+			fi
+			if [[ -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX ]] ; then
+				echo -e "\033[1;36mExit Message Stderr Builtin:\033[0m"
+				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX")"
+			fi
+		fi
+		if [[ -n $MINISHELL_EXIT_MSG_STDOUT_HEX ]] ; then
+			echo -e "\033[1;36mExit Message Stdout:\033[0m"
+			echo -e "$MINISHELL_EXIT_MSG_STDOUT"
+		else
+			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_EOF_HEX ]] ; then
+				echo -e "\033[1;36mExit Message Stdout EOF (Ctrl+D):\033[0m"
+				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX")"
+			fi
+			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX ]] ; then
+				echo -e "\033[1;36mExit Message Stdout Builtin:\033[0m"
+				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX")"
+			fi
+		fi
+		echo -e "\033[1;36m# **************************************************************************** #\033[m"
+	fi
 }
 
 # Check if minishell prints an exit message to STDOUT
@@ -122,21 +173,23 @@ main() {
 	fi
 
 	if [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-		echo -e "\033[1;33m# **************************************************************************** #"
+		echo -e "\033[1;34m# **************************************************************************** #"
 		echo "#                            MINISHELL NOT COMPILED                            #"
 		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
 		fi
+		echo -e "\033[1;34m# **************************************************************************** #\033[m"
 	elif ! make --question -s -C $MINISHELL_PATH &>/dev/null ; then
-		echo -e "\033[1;33m# **************************************************************************** #"
+		echo -e "\033[1;34m# **************************************************************************** #"
 		echo "#                           MINISHELL NOT UP TO DATE                           #"
 		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
 		fi
+		echo -e "\033[1;34m# **************************************************************************** #\033[m"
 	fi
 
 	if [[ $# -eq 0 ]] ; then
