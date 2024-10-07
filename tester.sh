@@ -1,12 +1,12 @@
 #!/usr/bin/env -S --default-signal bash
 
 # Change if you store the tester in another PATH
-export MINISHELL_PATH=./
-export EXECUTABLE=minishell
+MINISHELL_PATH=.
+EXECUTABLE=minishell
 RUNDIR=$HOME/42_minishell_tester
 DATE=$(date +%Y-%m-%d_%H.%M.%S)
-TMP_OUTDIR=$(mktemp -d)
 OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
+TMP_OUTDIR=$(mktemp -d)
 
 # Test how minishell behaves to adjust the output filters to it
 adjust_to_minishell() {
@@ -639,7 +639,7 @@ run_test() {
 			if [[ $test_leaks == "true" ]] ; then
 				echo -ne "\033[1;36mLEAKS:\033[m "
 				# Get all error summaries
-				error_summaries=$(cat "$TMP_OUTDIR/tmp_valgrind_out" | grep -a "ERROR SUMMARY:" | awk '{print $4}')
+				error_summaries=$(grep "ERROR SUMMARY:" "$TMP_OUTDIR/tmp_valgrind_out" | awk '{print $4}')
 				IFS=$'\n' read -rd '' -a error_summaries_array <<< "$error_summaries"
 				# Check if any error summary is not 0
 				leak_found=0
