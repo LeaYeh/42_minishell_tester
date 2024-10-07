@@ -775,17 +775,17 @@ prompt_with_enter() {
 }
 
 strip_ansi() {
-    echo -ne "${1}" | sed -r "s/(\033|\x1B|\x1b|\e)\[(([0-9]{1,3};)*[0-9]{1,3})?[mGK]//g"
+	echo -ne "${1}" | sed -r "s/(\033|\x1B|\x1b|\e)\[(([0-9]{1,3};)*[0-9]{1,3})?[mGK]//g"
 }
 
 print_centered() {
-    local text=$1
-    local total_length=82
+	local text=$1
+	local total_length=82
 	local pure_text="$(strip_ansi "$text")"
-    local text_length=${#pure_text}
-    local padding=$(( (total_length - text_length + 1) / 2 ))
+	local text_length=${#pure_text}
+	local padding=$(( (total_length - text_length + 1) / 2 ))
 
-    printf "%*s%b\n" $padding "" "$text"
+	printf "%*s%b\n" $padding "" "$text"
 }
 
 cleanup() {
