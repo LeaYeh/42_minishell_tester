@@ -71,7 +71,7 @@ trying to destroy your minishell
 echo > <
 
 hello world
-||||||||
+| | | | | | | |
 
 cat wouaf wouaf
 >
