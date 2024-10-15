@@ -50,15 +50,15 @@ adjust_to_minishell() {
 	MINISHELL_PROMPT=$(from_hex "$MINISHELL_PROMPT_HEX")
 	MINISHELL_ERR_NAME=$(from_hex "$MINISHELL_ERR_NAME_HEX")
 	MINISHELL_EXIT_MSG_STDERR=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_HEX")
-	MINISHELL_EXIT_MSG_STDERR_EOF_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX")
-	MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX")
+	MINISHELL_EXIT_MSG_STDERR_EOF=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX")
+	MINISHELL_EXIT_MSG_STDERR_BUILTIN=$(from_hex "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX")
 	MINISHELL_EXIT_MSG_STDOUT=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_HEX")
-	MINISHELL_EXIT_MSG_STDOUT_EOF_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX")
-	MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX")
+	MINISHELL_EXIT_MSG_STDOUT_EOF=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX")
+	MINISHELL_EXIT_MSG_STDOUT_BUILTIN=$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX")
 
-	if [[ -n $MINISHELL_START_MSG_HEX || -n $MINISHELL_PROMPT_HEX || -n $MINISHELL_ERR_NAME_HEX ||
-		-n $MINISHELL_EXIT_MSG_STDERR_HEX || -n $MINISHELL_EXIT_MSG_STDERR_EOF_HEX || -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX ||
-		-n $MINISHELL_EXIT_MSG_STDOUT_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_EOF_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX ]] ; then
+	if [[ -n $MINISHELL_START_MSG || -n $MINISHELL_PROMPT || -n $MINISHELL_ERR_NAME ||
+		-n $MINISHELL_EXIT_MSG_STDERR || -n $MINISHELL_EXIT_MSG_STDERR_EOF || -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN ||
+		-n $MINISHELL_EXIT_MSG_STDOUT || -n $MINISHELL_EXIT_MSG_STDOUT_EOF || -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN ]] ; then
 		echo -e "\033[1;36m# **************************************************************************** #"
 		echo "#                     ADJUSTED OUTPUT FILTERS FOR MINISHELL                    #"
 		echo -e "# **************************************************************************** #\033[m"
@@ -78,26 +78,26 @@ adjust_to_minishell() {
 			echo -e "\033[1;36mExit Message Stderr:\033[0m"
 			echo -e "$MINISHELL_EXIT_MSG_STDERR"
 		else
-			if [[ -n $MINISHELL_EXIT_MSG_STDERR_EOF_HEX ]] ; then
+			if [[ -n $MINISHELL_EXIT_MSG_STDERR_EOF ]] ; then
 				echo -e "\033[1;36mExit Message Stderr EOF (Ctrl+D):\033[0m"
-				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDERR_EOF_HEX")"
+				echo -e "$MINISHELL_EXIT_MSG_STDERR_EOF"
 			fi
-			if [[ -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX ]] ; then
+			if [[ -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN ]] ; then
 				echo -e "\033[1;36mExit Message Stderr Builtin:\033[0m"
-				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDERR_BUILTIN_HEX")"
+				echo -e "$MINISHELL_EXIT_MSG_STDERR_BUILTIN"
 			fi
 		fi
-		if [[ -n $MINISHELL_EXIT_MSG_STDOUT_HEX ]] ; then
+		if [[ -n $MINISHELL_EXIT_MSG_STDOUT ]] ; then
 			echo -e "\033[1;36mExit Message Stdout:\033[0m"
 			echo -e "$MINISHELL_EXIT_MSG_STDOUT"
 		else
-			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_EOF_HEX ]] ; then
+			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_EOF ]] ; then
 				echo -e "\033[1;36mExit Message Stdout EOF (Ctrl+D):\033[0m"
-				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_EOF_HEX")"
+				echo -e "$MINISHELL_EXIT_MSG_STDOUT_EOF"
 			fi
-			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX ]] ; then
+			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN ]] ; then
 				echo -e "\033[1;36mExit Message Stdout Builtin:\033[0m"
-				echo -e "$(from_hex "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX")"
+				echo -e "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN"
 			fi
 		fi
 		echo -e "\033[1;36m# **************************************************************************** #\033[m"
