@@ -156,7 +156,12 @@ main() {
 		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
+			echo -e "\033[1;31mCOMPILING FAILED\033[m"
+			if [[ -x $MINISHELL_PATH/$EXECUTABLE ]] || ([[ -f $MINISHELL_PATH/$EXECUTABLE ]] && chmod +x $MINISHELL_PATH/$EXECUTABLE) ; then
+				echo -e "\033[1;33mUSING EXISTING EXECUTABLE\033[m"
+			else
+				exit 1
+			fi
 		fi
 		echo -e "\033[1;34m# **************************************************************************** #\033[m"
 	elif ! make --question -s -C $MINISHELL_PATH &>/dev/null ; then
@@ -165,7 +170,12 @@ main() {
 		echo "#                                 COMPILING ...                                #"
 		echo -e "# **************************************************************************** #\033[m"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-			echo -e "\033[1;31mCOMPILING FAILED\033[m" && exit 1
+			echo -e "\033[1;31mCOMPILING FAILED\033[m"
+			if [[ -x $MINISHELL_PATH/$EXECUTABLE ]] || ([[ -f $MINISHELL_PATH/$EXECUTABLE ]] && chmod +x $MINISHELL_PATH/$EXECUTABLE) ; then
+				echo -e "\033[1;33mUSING EXISTING EXECUTABLE\033[m"
+			else
+				exit 1
+			fi
 		fi
 		echo -e "\033[1;34m# **************************************************************************** #\033[m"
 	fi
