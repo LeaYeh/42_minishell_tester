@@ -61,7 +61,7 @@ adjust_to_minishell() {
 		-n $MINISHELL_EXIT_MSG_STDOUT_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_EOF_HEX || -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN_HEX ]] ; then
 		echo -e "\033[1;36m# **************************************************************************** #"
 		echo "#                     ADJUSTED OUTPUT FILTERS FOR MINISHELL                    #"
-		echo -e "\033[1;36m# **************************************************************************** #\033[m"
+		echo -e "# **************************************************************************** #\033[m"
 		if [[ -n $MINISHELL_START_MSG ]] ; then
 			echo -e "\033[1;36mStart Message:\033[0m"
 			echo -e "$MINISHELL_START_MSG"
@@ -146,6 +146,10 @@ main() {
 		update_tester
 	fi
 
+	echo -e "\033[1;33m# **************************************************************************** #"
+	echo "#                         MSTEST - 42_MINISHELL_TESTER                         #"
+	echo -e "# **************************************************************************** #\033[m"
+
 	if [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
 		echo -e "\033[1;34m# **************************************************************************** #"
 		echo "#                            MINISHELL NOT COMPILED                            #"
@@ -194,28 +198,28 @@ main() {
 }
 
 print_usage() {
-	echo -e "  \033[1;33m# **************************************************************************** #"
-	echo -e "  #                          USAGE: mstest [options]                             #"
-	echo -e "  # Options:                                                                     #"
-	echo -e "  #   m                      Run mandatory tests                                 #"
-	echo -e "  #   vm                     Run mandatory tests with memory leak checks         #"
-	echo -e "  #   b                      Run bonus tests                                     #"
-	echo -e "  #   vb                     Run bonus tests with memory leak checks             #"
-	echo -e "  #   ne                     Run empty environment tests                         #"
-	echo -e "  #   vne                    Run empty environment tests with memory leak checks #"
-	echo -e "  #   c                      Run crash tests                                     #"
-	echo -e "  #   vc                     Run crash tests with memory leak checks             #"
-	echo -e "  #   a                      Run all tests                                       #"
-	echo -e "  #   va                     Run all tests with memory leak checks               #"
-	echo -e "  #   -l|--leaks             Enable memory leak checks for any test              #"
-	echo -e "  #      --no-stdfds         Don't report fd leaks of stdin, stdout, and stderr  #"
-	echo -e "  #   -n|--no-env            Run any test with an empty environment              #"
-	echo -e "  #   -f|--file <file>       Run tests specified in a file                       #"
-	echo -e "  #   -d|--dir <directory>   Run tests specified in a directory                  #"
-	echo -e "  #      --non-posix         Compare with normal bash instead of POSIX mode bash #"
-	echo -e "  #      --no-update         Don't check for updates                             #"
-	echo -e "  #   -h|--help              Show this help message and exit                     #"
-	echo -e "  # **************************************************************************** #\033[m"
+	echo -e "\033[1;33m# **************************************************************************** #"
+	echo -e "#                          USAGE: mstest [options]                             #"
+	echo -e "# Options:                                                                     #"
+	echo -e "#   m                      Run mandatory tests                                 #"
+	echo -e "#   vm                     Run mandatory tests with memory leak checks         #"
+	echo -e "#   b                      Run bonus tests                                     #"
+	echo -e "#   vb                     Run bonus tests with memory leak checks             #"
+	echo -e "#   ne                     Run empty environment tests                         #"
+	echo -e "#   vne                    Run empty environment tests with memory leak checks #"
+	echo -e "#   c                      Run crash tests                                     #"
+	echo -e "#   vc                     Run crash tests with memory leak checks             #"
+	echo -e "#   a                      Run all tests                                       #"
+	echo -e "#   va                     Run all tests with memory leak checks               #"
+	echo -e "#   -l|--leaks             Enable memory leak checks for any test              #"
+	echo -e "#      --no-stdfds         Don't report fd leaks of stdin, stdout, and stderr  #"
+	echo -e "#   -n|--no-env            Run any test with an empty environment              #"
+	echo -e "#   -f|--file <file>       Run tests specified in a file                       #"
+	echo -e "#   -d|--dir <directory>   Run tests specified in a directory                  #"
+	echo -e "#      --non-posix         Compare with normal bash instead of POSIX mode bash #"
+	echo -e "#      --no-update         Don't check for updates                             #"
+	echo -e "#   -h|--help              Show this help message and exit                     #"
+	echo -e "# **************************************************************************** #\033[m"
 }
 
 process_options() {
