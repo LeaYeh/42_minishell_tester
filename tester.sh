@@ -24,7 +24,19 @@ adjust_to_minishell() {
 
 	# Get the name of the minishell by running a command that produces an error
 	# The name will then be filtered out from error messages
-	MINISHELL_ERR_NAME_HEX=$(echo -n "|" | eval $ENV $MINISHELL 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}' | to_hex)
+	ERROR_COMMANDS=(
+		'|'
+		'cd /MSTEST'
+		'""'
+		'\\'
+		'non-existent-command'
+	)
+	for cmd in "${ERROR_COMMANDS[@]}" ; do
+		MINISHELL_ERR_NAME_HEX=$(echo -n "$cmd" | eval $ENV $MINISHELL 2>&1 >/dev/null | awk -F: '{if ($0 ~ /:/) print $1; else print ""}' | to_hex)
+		if [[ -n $(from_hex "$MINISHELL_ERR_NAME_HEX") ]] ; then
+			break
+		fi
+	done
 
 	# Get the exit message of the minishell in stderr in case it needs to be filtered out
 	# The exit message should always get printed to stderr, bash does it too (see `exit 2>/dev/null`)
