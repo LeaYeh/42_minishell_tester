@@ -27,8 +27,8 @@
 #ifndef INTERCEPT_H
 # define INTERCEPT_H
 
-# define DEBUG_ENV_VAR "INTERCEPT_DEBUG"
-# define EXIT_ENV_VAR  "INTERCEPT_EXIT"
+# define DEBUG_ENV_VAR "LIBINTERCEPT_DEBUG"
+# define EXIT_ENV_VAR  "LIBINTERCEPT_EXIT"
 
 typedef enum e_flags {
 	NONE       = 0,

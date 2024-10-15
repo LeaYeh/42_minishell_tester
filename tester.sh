@@ -13,7 +13,7 @@ adjust_to_minishell() {
 	local minishell_stdout
 
 	# libintercept will exit the minishell at the first call of readline or read
-	minishell_stdout=$(echo -n "" | eval $ENV INTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
+	minishell_stdout=$(echo -n "" | eval $ENV LIBINTERCEPT_EXIT=1 $MINISHELL 2>/dev/null)
 
 	# Get any message that minishell prints at the start
 	# head -1 keeps all but the last line, so it will drop a single line
