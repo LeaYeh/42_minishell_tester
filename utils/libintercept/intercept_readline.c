@@ -46,6 +46,9 @@ static char *read_line_tty_prompt(t_rl_func orig_readline, const char *prompt)
 		line = orig_readline(prompt);
 	}
 	else {
+		if (IS_FLAG_SET(FLAG_DEBUG)) {
+			dprintf(STDERR_FILENO, "Calling getline instead\n");
+		}
 		read = getline(&line, &len, stdin);
 		if (read == -1) {
 			free(line);
