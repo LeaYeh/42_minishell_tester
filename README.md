@@ -28,7 +28,7 @@
 
 - [Troubleshooting](#troubleshooting)
 
-  - [All my STDOUT/STDERR tests fail](#all-my-stdout/stderr-tests-fail)
+  - [All my STDOUT/STDERR tests fail](#all-my-stdoutstderr-tests-fail)
 
 - [Valgrind Command](#how-to-test-with-valgrind)
 
