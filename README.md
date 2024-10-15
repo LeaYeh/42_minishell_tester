@@ -10,6 +10,7 @@
 - File descriptor leak checks.
 - Crash detection.
 - Smart stderror comparison with bash.
+- Minishell output filtering (start message, prompt, exit message).
 - Output failed test cases and valgrind results to files.
 - Updated test cases for updated subject (v7.1).
 - Subshell test cases.
@@ -27,7 +28,7 @@
 
 - [Troubleshooting](#troubleshooting)
 
-  - [All my STDOUT tests fail](#all-my-stdout-tests-fail)
+  - [All my STDOUT/STDERR tests fail](#all-my-stdout/stderr-tests-fail)
 
 - [Valgrind Command](#how-to-test-with-valgrind)
 
@@ -71,13 +72,20 @@ mstest
 
 # Troubleshooting
 
-## All my STDOUT tests fail
+## All my STDOUT/STDERR tests fail
 
-  It is because you print your exit message to STDOUT instead of STDERR.
+  This is probably because you print something which bash does not print, at least not in non-interactive mode.
+  What is non-interactive mode? Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
+  ```bash
+  echo -n "test-command" | ./minishell
+  echo -n "test-command" | bash
+  ```
+  It then tries to filter out a lot of variances after capturing the output, but depending on your implementation, there might still be some differences between the outputs of your minishell and bash.<br>
+  You can check the output in the `mstest_output` directory in your minishell directory to see which exact printouts cause problems.
 
-  You can fix this in two ways:
-  - Check in your code if you are in "interactive mode" (`isatty()`) and only print the exit message if you are. This is how bash does it.
-  - Print the exit message to STDERR. In interactive mode, bash does it this way too (try out `exit 2>/dev/null`).<br>
+  You can fix this in the following way:
+  - Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
+    This is how bash does it for its "exit" message too.<br>
     For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
 
 ---
