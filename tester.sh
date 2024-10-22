@@ -8,6 +8,21 @@ DATE=$(date +%Y-%m-%d_%H.%M.%S)
 OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 TMP_OUTDIR=$(mktemp -d)
 
+# Colors
+RESET="\033[0m"
+BOLD="\033[1m"
+ITALIC="\033[3m"
+UNDERLINED="\033[4m"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+MAGENTA="\033[35m"
+CYAN="\033[36m"
+GRAY="\033[90m"
+BRIGHT_GREEN="\033[92m"
+BRIGHT_WHITE="\033[97m"
+
 # Test how minishell behaves to adjust the output filters to it
 adjust_to_minishell() {
 	local minishell_stdout
@@ -71,48 +86,48 @@ adjust_to_minishell() {
 	if [[ -n $MINISHELL_START_MSG || -n $MINISHELL_PROMPT || -n $MINISHELL_ERR_NAME ||
 		-n $MINISHELL_EXIT_MSG_STDERR || -n $MINISHELL_EXIT_MSG_STDERR_EOF || -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN ||
 		-n $MINISHELL_EXIT_MSG_STDOUT || -n $MINISHELL_EXIT_MSG_STDOUT_EOF || -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN ]] ; then
-		echo -e "\033[1;36m# **************************************************************************** #"
+		echo -e "${BOLD}${CYAN}# **************************************************************************** #"
 		echo "#                     ADJUSTED OUTPUT FILTERS FOR MINISHELL                    #"
-		echo -e "# **************************************************************************** #\033[m"
+		echo -e "# **************************************************************************** #${RESET}"
 		if [[ -n $MINISHELL_START_MSG ]] ; then
-			echo -e "\033[1;36mStart Message:\033[0m"
+			echo -e "${BOLD}${CYAN}Start Message:${RESET}"
 			echo -e "$MINISHELL_START_MSG"
 		fi
 		if [[ -n $MINISHELL_PROMPT ]] ; then
-			echo -e "\033[1;36mPrompt:\033[0m"
+			echo -e "${BOLD}${CYAN}Prompt:${RESET}"
 			echo -e "$MINISHELL_PROMPT"
 		fi
 		if [[ -n $MINISHELL_ERR_NAME ]] ; then
-			echo -e "\033[1;36mError Message Name:\033[0m"
+			echo -e "${BOLD}${CYAN}Error Message Name:${RESET}"
 			echo -e "$MINISHELL_ERR_NAME"
 		fi
 		if [[ -n $MINISHELL_EXIT_MSG_STDERR ]] ; then
-			echo -e "\033[1;36mExit Message Stderr:\033[0m"
+			echo -e "${BOLD}${CYAN}Exit Message Stderr:${RESET}"
 			echo -e "$MINISHELL_EXIT_MSG_STDERR"
 		else
 			if [[ -n $MINISHELL_EXIT_MSG_STDERR_EOF ]] ; then
-				echo -e "\033[1;36mExit Message Stderr EOF (Ctrl+D):\033[0m"
+				echo -e "${BOLD}${CYAN}Exit Message Stderr EOF (Ctrl+D):${RESET}"
 				echo -e "$MINISHELL_EXIT_MSG_STDERR_EOF"
 			fi
 			if [[ -n $MINISHELL_EXIT_MSG_STDERR_BUILTIN ]] ; then
-				echo -e "\033[1;36mExit Message Stderr Builtin:\033[0m"
+				echo -e "${BOLD}${CYAN}Exit Message Stderr Builtin:${RESET}"
 				echo -e "$MINISHELL_EXIT_MSG_STDERR_BUILTIN"
 			fi
 		fi
 		if [[ -n $MINISHELL_EXIT_MSG_STDOUT ]] ; then
-			echo -e "\033[1;36mExit Message Stdout:\033[0m"
+			echo -e "${BOLD}${CYAN}Exit Message Stdout:${RESET}"
 			echo -e "$MINISHELL_EXIT_MSG_STDOUT"
 		else
 			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_EOF ]] ; then
-				echo -e "\033[1;36mExit Message Stdout EOF (Ctrl+D):\033[0m"
+				echo -e "${BOLD}${CYAN}Exit Message Stdout EOF (Ctrl+D):${RESET}"
 				echo -e "$MINISHELL_EXIT_MSG_STDOUT_EOF"
 			fi
 			if [[ -n $MINISHELL_EXIT_MSG_STDOUT_BUILTIN ]] ; then
-				echo -e "\033[1;36mExit Message Stdout Builtin:\033[0m"
+				echo -e "${BOLD}${CYAN}Exit Message Stdout Builtin:${RESET}"
 				echo -e "$MINISHELL_EXIT_MSG_STDOUT_BUILTIN"
 			fi
 		fi
-		echo -e "\033[1;36m# **************************************************************************** #\033[m"
+		echo -e "${BOLD}${CYAN}# **************************************************************************** #${RESET}"
 	fi
 }
 
@@ -158,38 +173,38 @@ main() {
 		update_tester
 	fi
 
-	echo -e "\033[1;33m# **************************************************************************** #"
+	echo -e "${BOLD}${YELLOW}# **************************************************************************** #"
 	echo "#                         MSTEST - 42_MINISHELL_TESTER                         #"
-	echo -e "# **************************************************************************** #\033[m"
+	echo -e "# **************************************************************************** #${RESET}"
 
 	if [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-		echo -e "\033[1;34m# **************************************************************************** #"
+		echo -e "${BOLD}${BLUE}# **************************************************************************** #"
 		echo "#                            MINISHELL NOT COMPILED                            #"
 		echo "#                                 COMPILING ...                                #"
-		echo -e "# **************************************************************************** #\033[m"
+		echo -e "# **************************************************************************** #${RESET}"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-			echo -e "\033[1;31mCOMPILING FAILED\033[m"
+			echo -e "${BOLD}${RED}COMPILING FAILED${RESET}"
 			if [[ -x $MINISHELL_PATH/$EXECUTABLE ]] || ([[ -f $MINISHELL_PATH/$EXECUTABLE ]] && chmod +x $MINISHELL_PATH/$EXECUTABLE) ; then
-				echo -e "\033[1;33mUSING EXISTING EXECUTABLE\033[m"
+				echo -e "${BOLD}${YELLOW}USING EXISTING EXECUTABLE${RESET}"
 			else
 				exit 1
 			fi
 		fi
-		echo -e "\033[1;34m# **************************************************************************** #\033[m"
+		echo -e "${BOLD}${BLUE}# **************************************************************************** #${RESET}"
 	elif ! make --question -s -C $MINISHELL_PATH &>/dev/null ; then
-		echo -e "\033[1;34m# **************************************************************************** #"
+		echo -e "${BOLD}${BLUE}# **************************************************************************** #"
 		echo "#                           MINISHELL NOT UP TO DATE                           #"
 		echo "#                                 COMPILING ...                                #"
-		echo -e "# **************************************************************************** #\033[m"
+		echo -e "# **************************************************************************** #${RESET}"
 		if ! make -s -C $MINISHELL_PATH || [[ ! -f $MINISHELL_PATH/$EXECUTABLE ]] ; then
-			echo -e "\033[1;31mCOMPILING FAILED\033[m"
+			echo -e "${BOLD}${RED}COMPILING FAILED${RESET}"
 			if [[ -x $MINISHELL_PATH/$EXECUTABLE ]] || ([[ -f $MINISHELL_PATH/$EXECUTABLE ]] && chmod +x $MINISHELL_PATH/$EXECUTABLE) ; then
-				echo -e "\033[1;33mUSING EXISTING EXECUTABLE\033[m"
+				echo -e "${BOLD}${YELLOW}USING EXISTING EXECUTABLE${RESET}"
 			else
 				exit 1
 			fi
 		fi
-		echo -e "\033[1;34m# **************************************************************************** #\033[m"
+		echo -e "${BOLD}${BLUE}# **************************************************************************** #${RESET}"
 	fi
 
 	if [[ $# -eq 0 ]] ; then
@@ -220,7 +235,7 @@ main() {
 }
 
 print_usage() {
-	echo -e "\033[1;33m# **************************************************************************** #"
+	echo -e "${BOLD}${YELLOW}# **************************************************************************** #"
 	echo -e "#                          USAGE: mstest [options]                             #"
 	echo -e "# Options:                                                                     #"
 	echo -e "#   m                      Run mandatory tests                                 #"
@@ -241,7 +256,7 @@ print_usage() {
 	echo -e "#      --non-posix         Compare with normal bash instead of POSIX mode bash #"
 	echo -e "#      --no-update         Don't check for updates                             #"
 	echo -e "#   -h|--help              Show this help message and exit                     #"
-	echo -e "# **************************************************************************** #\033[m"
+	echo -e "# **************************************************************************** #${RESET}"
 }
 
 process_options() {
@@ -492,7 +507,7 @@ print_title() {
 	local padding_right=$(printf '%*s' "$padding_length_right" "")
 
 	echo "  $s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s"
-	echo -e "  $s${padding_left}\033[1;34m$title\033[m${padding_right}$s"
+	echo -e "  $s${padding_left}${BOLD}${BLUE}$title${RESET}${padding_right}$s"
 	echo "  $s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s$s"
 }
 
@@ -596,11 +611,11 @@ run_test() {
 		((line_count++))
 		if [[ $line == "#"* ]] || [[ $line == "" ]] ; then
 			if [[ $line == "#"[[:blank:]]*[[:blank:]]"#" ]] ; then
-				echo -e "\033[1;33m		$line\033[m" | tr '\t' '    '
+				echo -e "${BOLD}${YELLOW}		$line${RESET}" | tr '\t' '    '
 			fi
 			continue
 		else
-			printf "\033[1;35m%-4s\033[m" "  $i:	"
+			printf "${BOLD}${MAGENTA}%-4s${RESET}" "  $i:	"
 			tmp_line_count=$line_count
 			failed=0
 			while [[ $end_of_file == 0 ]] && [[ $line != "#"* ]] && [[ $line != "" ]] ; do
@@ -623,7 +638,7 @@ run_test() {
 
 			# Check stdout
 			if [[ $test_stdout == "true" ]] ; then
-				echo -ne "\033[1;34mSTD_OUT:\033[m "
+				echo -ne "${BOLD}${BLUE}STD_OUT:${RESET} "
 				if [[ -n "$MINISHELL_START_MSG_HEX" ]] ; then
 					# Filter out the start message from stdout
 					sed -i "s/^$MINISHELL_START_MSG_HEX//" "$TMP_OUTDIR/tmp_out_minishell.hex"
@@ -668,7 +683,7 @@ run_test() {
 
 			# Check stderr
 			if [[ $test_stderr == "true" ]] ; then
-				echo -ne "\033[1;33mSTD_ERR:\033[m "
+				echo -ne "${BOLD}${YELLOW}STD_ERR:${RESET} "
 				if [[ -n "$MINISHELL_EXIT_MSG_STDERR_HEX" ]] ; then
 					# Filter out the exit message from stderr
 					sed -i -E "s/$MINISHELL_EXIT_MSG_STDERR_HEX( *$| *0a)/\1/g" "$TMP_OUTDIR/tmp_err_minishell.hex"
@@ -706,9 +721,9 @@ run_test() {
 
 			# Check exit code
 			if [[ $test_exit_code == "true" ]] ; then
-				echo -ne "\033[1;36mEXIT_CODE:\033[m "
+				echo -ne "${BOLD}${CYAN}EXIT_CODE:${RESET} "
 				if [[ $exit_minishell != $exit_bash ]] ; then
-					echo -ne "❌\033[1;31m [ minishell($exit_minishell) bash($exit_bash) ]\033[m  " | tr '\n' ' '
+					echo -ne "❌${BOLD}${RED} [ minishell($exit_minishell) bash($exit_bash) ]${RESET}  " | tr '\n' ' '
 					((TESTS_KO_EXIT++))
 					((failed++))
 				else
@@ -719,7 +734,7 @@ run_test() {
 
 			# Check for crashes
 			if [[ $test_crash == "true" ]] ; then
-				echo -ne "\033[1;36mCRASH:\033[m "
+				echo -ne "${BOLD}${CYAN}CRASH:${RESET} "
 				case $exit_minishell in
 					132) crash_type="SIGILL" ;;
 					134) crash_type="SIGABRT" ;;
@@ -731,7 +746,7 @@ run_test() {
 					*) crash_type="" ;;
 				esac
 				if [[ -n $crash_type ]] ; then
-					echo -ne "❌\033[1;31m [ $crash_type ]\033[m  " | tr '\n' ' '
+					echo -ne "❌${BOLD}${RED} [ $crash_type ]${RESET}  " | tr '\n' ' '
 					((CRASHES++))
 					((failed++))
 				else
@@ -741,7 +756,7 @@ run_test() {
 
 			# Check for leaks
 			if [[ $test_leaks == "true" ]] ; then
-				echo -ne "\033[1;36mLEAKS:\033[m "
+				echo -ne "${BOLD}${CYAN}LEAKS:${RESET} "
 				# Get all error summaries
 				error_summaries=$(grep "ERROR SUMMARY:" "$TMP_OUTDIR/tmp_valgrind_out" | awk '{print $4}')
 				IFS=$'\n' read -rd '' -a error_summaries_array <<< "$error_summaries"
@@ -790,7 +805,7 @@ run_test() {
 			input=""
 			((i++))
 			((TEST_COUNT++))
-			echo -e "\033[0;90m$file:$tmp_line_count\033[m  "
+			echo -e "${GRAY}$file:$tmp_line_count${RESET}  "
 			if [[ $failed -eq 0 ]] ; then
 				((TESTS_PASSED++))
 			else
@@ -806,63 +821,63 @@ print_stats() {
 	local line
 
 	echo "🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁"
-	echo -e "🏁                                    \033[1;31mRESULT\033[m                                    🏁"
+	echo -e "🏁                                    ${BOLD}${RED}RESULT${RESET}                                    🏁"
 	echo "🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁"
-	line="\033[1;35mTOTAL TEST COUNT: $TEST_COUNT\033[m"
-	line+="  \033[1;32mTESTS PASSED: $TESTS_PASSED\033[m"
+	line="${BOLD}${MAGENTA}TOTAL TEST COUNT: $TEST_COUNT${RESET}"
+	line+="  ${BOLD}${GREEN}TESTS PASSED: $TESTS_PASSED${RESET}"
 	if [[ -n $LEAKS ]] ; then
 		if [[ $LEAKS == 0 ]] ; then
-			line+="  \033[1;32mLEAKING: $LEAKS\033[m"
+			line+="  ${BOLD}${GREEN}LEAKING: $LEAKS${RESET}"
 		else
-			line+="  \033[1;31mLEAKING: $LEAKS\033[m"
+			line+="  ${BOLD}${RED}LEAKING: $LEAKS${RESET}"
 		fi
 	fi
 	print_centered "$line"
 
 	line=""
 	if [[ -n $TESTS_KO_OUT ]] ; then
-		line="\033[1;34mSTD_OUT:\033[m "
+		line="${BOLD}${BLUE}STD_OUT:${RESET} "
 		if [[ $TESTS_KO_OUT == 0 ]] ; then
-			line+="\033[1;32m✓\033[m"
+			line+="${BOLD}${GREEN}✓${RESET}"
 		else
-			line+="\033[1;31m$TESTS_KO_OUT\033[m"
+			line+="${BOLD}${RED}$TESTS_KO_OUT${RESET}"
 		fi
 	fi
 	if [[ -n $TESTS_KO_ERR ]] ; then
-		line+="  \033[1;33mSTD_ERR:\033[m "
+		line+="  ${BOLD}${YELLOW}STD_ERR:${RESET} "
 		if [[ $TESTS_KO_ERR == 0 ]] ; then
-			line+="\033[1;32m✓\033[m"
+			line+="${BOLD}${GREEN}✓${RESET}"
 		else
-			line+="\033[1;31m$TESTS_KO_ERR\033[m"
+			line+="${BOLD}${RED}$TESTS_KO_ERR${RESET}"
 		fi
 	fi
 	if [[ -n $TESTS_KO_EXIT ]] ; then
-		line+="  \033[1;36mEXIT_CODE:\033[m "
+		line+="  ${BOLD}${CYAN}EXIT_CODE:${RESET} "
 		if [[ $TESTS_KO_EXIT == 0 ]] ; then
-			line+="\033[1;32m✓\033[m"
+			line+="${BOLD}${GREEN}✓${RESET}"
 		else
-			line+="\033[1;31m$TESTS_KO_EXIT\033[m"
+			line+="${BOLD}${RED}$TESTS_KO_EXIT${RESET}"
 		fi
 	fi
 	if [[ -n $CRASHES ]] ; then
 		if [[ $CRASHES == 0 ]] ; then
-			line+="  \033[1;32mCRASHING: $CRASHES\033[m"
+			line+="  ${BOLD}${GREEN}CRASHING: $CRASHES${RESET}"
 		else
-			line+="  \033[1;31mCRASHING: $CRASHES\033[m"
+			line+="  ${BOLD}${RED}CRASHING: $CRASHES${RESET}"
 		fi
 	fi
 	print_centered "$line"
 
-	print_centered "\033[1;33mTOTAL FAILED AND PASSED CASES:\033[m"
-	echo -e "\033[1;31m                                      ❌ $TESTS_KO \033[m"
-	echo -e "\033[1;32m                                      ✅ $TESTS_OK \033[m"
+	print_centered "${BOLD}${YELLOW}TOTAL FAILED AND PASSED CASES:${RESET}"
+	echo -e "${BOLD}${RED}                                      ❌ $TESTS_KO ${RESET}"
+	echo -e "${BOLD}${GREEN}                                      ✅ $TESTS_OK ${RESET}"
 }
 
 update_tester() {
 	cd "$RUNDIR" || return 1
 	if git rev-parse --is-inside-work-tree >/dev/null 2>&1 ; then
 		echo "Checking for updates..."
-		git pull 2>/dev/null | head -n 1 | grep "Already up to date." || { echo -e "\033[1;92mTester updated.\033[m" && cd - >/dev/null && exec "$0" --no-update "${SCRIPT_ARGS[@]}" ; exit ; }
+		git pull 2>/dev/null | head -n 1 | grep "Already up to date." || { echo -e "${BOLD}${BRIGHT_GREEN}Tester updated.${RESET}" && cd - >/dev/null && exec "$0" --no-update "${SCRIPT_ARGS[@]}" ; exit ; }
 	fi
 	cd - >/dev/null
 }
