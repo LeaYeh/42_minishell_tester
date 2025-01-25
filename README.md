@@ -98,6 +98,19 @@ From the perspective of the minishell, this means stdin got closed, which is the
 **Solution:**
 - Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
 
+## Bash in the tester behaves differently than in manual testing
+
+The tester runs bash in [POSIX mode](https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html) (`bash --posix`).<br>
+POSIX (Portable Operating System Interface) is a standard ensuring compatibility across Unix-like systems.<br>
+The most relevant differences for minishell are:
+- Redirection operators do not perform word splitting on the word in the redirection (`export VAR="a b" ; > $VAR`)
+- The export builtin command displays its output in the format required by POSIX (`export` vs `declare -x`)
+
+If you prefer to stick with the normal bash behavior that is not fully POSIX compliant, you can run the tester with the `--non-posix` flag.
+
+**Solution:**
+- When you test bash's behavior manually, start bash with the `--posix` flag, or run the tester with the `--non-posix` flag.
+
 ## The output of minishell looks the same as bash's, but the test fails
 
 This most likely is caused by one of the following three issues:
