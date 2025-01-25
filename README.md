@@ -98,6 +98,23 @@ From the perspective of the minishell, this means stdin got closed, which is the
 **Solution:**
 - Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
 
+## The tester reports leaks which cannot be reproduced
+
+By default, the tester uses the `--track-fds=all` flag for valgrind to track file descriptor leaks.<br>
+The difference to `--track-fds=yes` is that it also tracks fds `0`, `1` and `2` (stdin, stdout and stderr).<br>
+The standard file descriptors get inherited from the parent process that spawned minishell.<br>
+If you don't modify them, valgrind won't report any errors (`<inherited from parent>`).<br>
+However, if you do modify the standard fds, f.e. you used `dup()` and `dup2()` to restore the original stdfds, valgrind will report them as leaking if you don't close them again in the same process in which you touched them.<br>
+
+A common test case to reproduce these leaks from `--track-fds=all` is to combine a redirection with a simple builtin: `cd > outfile`.<br>
+Because the builtin gets executed without any pipes, it does not run in a child process.<br>
+In turn that means after redirecting stdout to a file and executing the builtin, the stdout has to be restored before the next iteration of the input loop. All within the same process.
+
+If you don't want the standard fds to ever get reported as leaking, you can run the tester with the `--no-stdfds` flag.
+
+**Solution:**
+- Close the standard file descriptors if you touched them with `dup2()`, or run the tester with the `--no-stdfds` flag.
+
 ## Bash in the tester behaves differently than in manual testing
 
 The tester runs bash in [POSIX mode](https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html) (`bash --posix`).<br>
