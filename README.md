@@ -74,8 +74,9 @@ mstest
 
 ## All my STDOUT/STDERR tests fail
 
-  This is probably because you print something which bash does not print, at least not in non-interactive mode.
-  What is non-interactive mode? Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
+  This is probably because you print something which bash does not print, at least not in non-interactive mode.<br>
+  What is non-interactive mode?<br>
+  Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
   ```bash
   echo -n "test-command" | ./minishell
   echo -n "test-command" | bash
@@ -83,10 +84,51 @@ mstest
   It then tries to filter out a lot of variances after capturing the output, but depending on your implementation, there might still be some differences between the outputs of your minishell and bash.<br>
   You can check the output in the `mstest_output` directory in your minishell directory to see which exact printouts cause problems.
 
-  You can fix this in the following way:
+  **Solution:**
   - Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
     This is how bash does it for its "exit" message too.<br>
     For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
+
+## The tester gets stuck at the first test
+
+As described in the previuos point, the tester pipes the test commands into the stdin of the minishell.<br>
+The side effect of that is that once the process which pipes the test command into the minishell finished and exited, the pipe between the two gets closed.<br>
+From the perspective of the minishell, this means stdin got closed, which is the same as receiving `Ctrl+D` in interactive mode.
+
+**Solution:**
+- Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
+
+## The output of minishell looks the same as bash's, but the test fails
+
+This most likely is caused by one of the following three issues:
+1. **You don't print the name of your shell when bash does.**
+
+   You probably noticed that bash (most of the time) starts its output with `bash: `.<br>
+   It would of course be silly to expect that all minishells also print `bash: ` as their program name in front of (most of) their outputs.<br>
+   Therefore, the tester only expects that you put _some_ program name where bash puts its.<br>
+
+   It doesn't matter if it's gonna be `minishell: `, `shell: ` or `42shell: `, the tester just cares about that you print out _something_ that has the same purpose as bash's printout.<br>
+   The tester achieves this by first learning what your minishell prints out in certain scenarios, and then filtering out these program-specific printouts.<br>
+   If, however, you don't print out any program name when bash does, the tester will filter out something else from the minishell's output, and the test fails.<br>
+
+   A very common example is `cd not_existing`.<br>
+   - bash stderr: `bash: cd: not_existing: No such file or directory`<br>
+     -> bash filtered stderr: `cd: not_existing: No such file or directory`<br>
+   - minishell stderr `cd: not_existing: No such file or directory`<br>
+     -> minishell filtered stderr: `not_existing: No such file or directory`
+   
+2. **There is a trailing whitespace in your printout.**
+
+3. **The test case inherently produces inconsistent results.**
+
+   Some test cases are known to not output exactly the same every time they are run, not even in bash.<br>
+   They are still included in the tester because they test the stability of critical parts of a shell.<br>
+
+   One example is a very long sequence of piped commands.<br>
+   Because each command spawns in its own process, they run in parallel and the order of their outputs are not guaranteed.<br>
+
+   We deemed it more important to cover as much of the minishell with tricky tests as possible, than to strive for the possibility of 0 failed test cases.<br>
+   If you have ideas how to make certain test cases which cause inconsistencies more consistent, without making the test easier to pass, we are extremely glad for every suggestion!
 
 ---
 
