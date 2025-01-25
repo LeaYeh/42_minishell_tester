@@ -74,20 +74,20 @@ mstest
 
 ## All my STDOUT/STDERR tests fail
 
-  This is probably because you print something which bash does not print, at least not in non-interactive mode.<br>
-  What is non-interactive mode?<br>
-  Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
-  ```bash
-  echo -n "test-command" | ./minishell
-  echo -n "test-command" | bash
-  ```
-  It then tries to filter out a lot of variances after capturing the output, but depending on your implementation, there might still be some differences between the outputs of your minishell and bash.<br>
-  You can check the output in the `mstest_output` directory in your minishell directory to see which exact printouts cause problems.
+This is probably because you print something which bash does not print, at least not in non-interactive mode.<br>
+What is non-interactive mode?<br>
+Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
+```bash
+echo -n "test-command" | ./minishell
+echo -n "test-command" | bash
+```
+It then tries to filter out a lot of variances after capturing the output, but depending on your implementation, there might still be some differences between the outputs of your minishell and bash.<br>
+You can check the output in the `mstest_output` directory in your minishell directory to see which exact printouts cause problems.
 
-  **Solution:**
-  - Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
-    This is how bash does it for its "exit" message too.<br>
-    For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
+**Solution:**
+- Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
+  This is how bash does it for its "exit" message too.<br>
+  For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
 
 ## The tester gets stuck at the first test
 
