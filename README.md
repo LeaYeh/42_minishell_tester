@@ -104,7 +104,7 @@ You can check the output in the `mstest_output` directory in your minishell dire
 
 As described in the previuos point, the tester pipes the test commands into the stdin of the minishell.<br>
 The side effect of that is that once the process which pipes the test command into the minishell finished and exited, the pipe between the two gets closed.<br>
-From the perspective of the minishell, this means stdin got closed, which is the same as receiving `Ctrl+D` in interactive mode.<br>
+From the perspective of the minishell, this means stdin got closed, which is the same as receiving `Ctrl+D` in interactive mode.
 
 As a side note, `Ctrl+D` is **not** a signal, it just closes stdin, which is the same as reading `EOF`.
 
@@ -117,7 +117,7 @@ By default, the tester uses the `--track-fds=all` flag for valgrind to track fil
 The difference to `--track-fds=yes` is that it also tracks fds `0`, `1` and `2` (stdin, stdout and stderr).<br>
 The standard file descriptors get inherited from the parent process that spawned minishell.<br>
 If you don't modify them, valgrind won't report any errors (`<inherited from parent>`).<br>
-However, if you do modify the standard fds, f.e. you used `dup()` and `dup2()` to restore the original stdfds, valgrind will report them as leaking if you don't close them again in the same process in which you touched them.<br>
+However, if you do modify the standard fds, f.e. you used `dup()` and `dup2()` to restore the original stdfds, valgrind will report them as leaking if you don't close them again in the same process in which you touched them.
 
 A common test case to reproduce these leaks from `--track-fds=all` is to combine a redirection with a simple builtin: `cd > outfile`.<br>
 Because the builtin gets executed without any pipes, it does not run in a child process.<br>
@@ -145,15 +145,15 @@ This most likely is caused by one of the following three issues:
 
    You probably noticed that bash (most of the time) starts its output with `bash: `.<br>
    It would of course be silly to expect that all minishells also print `bash: ` as their program name in front of (most of) their outputs.<br>
-   Therefore, the tester only expects that you put _some_ program name where bash puts its.<br>
+   Therefore, the tester only expects that you put _some_ program name where bash puts its.
 
    It doesn't matter if it's gonna be `minishell: `, `shell: ` or `42shell: `, the tester just cares about that you print out _something_ that has the same purpose as bash's printout.<br>
    The tester achieves this by first learning what your minishell prints out in certain scenarios, and then filtering out these program-specific printouts.<br>
-   If, however, you don't print out any program name when bash does, the tester will filter out something else from the minishell's output, and the test fails.<br>
+   If, however, you don't print out any program name when bash does, the tester will filter out something else from the minishell's output, and the test fails.
 
-   A very common example is `cd not_existing`.<br>
+   A very common example is `cd not_existing`:
    - bash stderr: `bash: cd: not_existing: No such file or directory`<br>
-     -> bash filtered stderr: `cd: not_existing: No such file or directory`<br>
+     -> bash filtered stderr: `cd: not_existing: No such file or directory`
    - minishell stderr `cd: not_existing: No such file or directory`<br>
      -> minishell filtered stderr: `not_existing: No such file or directory`
    
@@ -162,10 +162,10 @@ This most likely is caused by one of the following three issues:
 3. **The test case inherently produces inconsistent results.**
 
    Some test cases are known to not output exactly the same every time they are run, not even in bash.<br>
-   They are still included in the tester because they test the stability of critical parts of a shell.<br>
+   They are still included in the tester because they test the stability of critical parts of a shell.
 
    One example is a very long sequence of piped commands.<br>
-   Because each command spawns in its own process, they run in parallel and the order of their outputs are not guaranteed.<br>
+   Because each command spawns in its own process, they run in parallel and the order of their outputs are not guaranteed.
 
    We deemed it more important to cover as much of the minishell with tricky tests as possible, than to strive for the possibility of 0 failed test cases.<br>
    If you have ideas how to make certain test cases which cause inconsistencies more consistent, without making the test easier to pass, we are extremely glad for every suggestion!
