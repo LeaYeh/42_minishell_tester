@@ -30,6 +30,14 @@
 
   - [All my STDOUT/STDERR tests fail](#all-my-stdoutstderr-tests-fail)
 
+  - [The tester gets stuck at the first test](#the-tester-gets-stuck-at-the-first-test)
+
+  - [The tester reports leaks which cannot be reproduced](#the-tester-reports-leaks-which-cannot-be-reproduced)
+
+  - [Bash in the tester behaves differently than in manual testing](#bash-in-the-tester-behaves-differently-than-in-manual-testing)
+
+  - [The output of minishell looks the same as bash's, but the test fails](#the-output-of-minishell-looks-the-same-as-bashs-but-the-test-fails)
+
 - [Valgrind Command](#how-to-test-with-valgrind)
 
 - [Disclaimer](#disclaimer)
