@@ -28,7 +28,7 @@
 
 - [Troubleshooting](#troubleshooting)
 
-  - [All my STDOUT/STDERR tests fail](#all-my-stdoutstderr-tests-fail)
+  - [All the STDOUT/STDERR tests fail](#all-the-stdoutstderr-tests-fail)
 
   - [The tester gets stuck at the first test](#the-tester-gets-stuck-at-the-first-test)
 
@@ -80,7 +80,7 @@ mstest
 
 # Troubleshooting
 
-## All my STDOUT/STDERR tests fail
+## All the STDOUT/STDERR tests fail
 
 This is probably because you print something which bash does not print, at least not in non-interactive mode.<br>
 What is non-interactive mode?<br>
