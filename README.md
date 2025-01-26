@@ -101,7 +101,9 @@ You can check the output in the `mstest_output` directory in your minishell dire
 
 As described in the previuos point, the tester pipes the test commands into the stdin of the minishell.<br>
 The side effect of that is that once the process which pipes the test command into the minishell finished and exited, the pipe between the two gets closed.<br>
-From the perspective of the minishell, this means stdin got closed, which is the same as receiving `Ctrl+D` in interactive mode.
+From the perspective of the minishell, this means stdin got closed, which is the same as receiving `Ctrl+D` in interactive mode.<br>
+
+As a side note, `Ctrl+D` is **not** a signal, it just closes stdin, which is the same as reading `EOF`.
 
 **Solution:**
 - Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
