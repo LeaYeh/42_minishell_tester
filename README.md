@@ -82,6 +82,11 @@ mstest
 
 ## All the STDOUT/STDERR tests fail
 
+**Solution:**
+- Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
+  This is how bash does it for its "exit" message too.<br>
+  For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
+
 This is probably because you print something which bash does not print, at least not in non-interactive mode.<br>
 What is non-interactive mode?<br>
 Because the tester cannot simulate interactive user input coming from the terminal, it **pipes** the tests into the stdin of minishell/bash, (roughly) like this:
@@ -92,12 +97,10 @@ echo -n "test-command" | bash
 It then tries to filter out a lot of variances after capturing the output, but depending on your implementation, there might still be some differences between the outputs of your minishell and bash.<br>
 You can check the output in the `mstest_output` directory in your minishell directory to see which exact printouts cause problems.
 
-**Solution:**
-- Check in your code if you are in "interactive mode" (`isatty()`) and only print the problematic message if you are.
-  This is how bash does it for its "exit" message too.<br>
-  For more information, see [here](https://github.com/LeaYeh/minishell/pull/270).
-
 ## The tester gets stuck at the first test
+
+**Solution:**
+- Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
 
 As described in the previuos point, the tester pipes the test commands into the stdin of the minishell.<br>
 The side effect of that is that once the process which pipes the test command into the minishell finished and exited, the pipe between the two gets closed.<br>
@@ -105,10 +108,10 @@ From the perspective of the minishell, this means stdin got closed, which is the
 
 As a side note, `Ctrl+D` is **not** a signal, it just closes stdin, which is the same as reading `EOF`.
 
-**Solution:**
-- Make sure that your minishell can handle `Ctrl+D` and exits when receiving it.
-
 ## The tester reports leaks which cannot be reproduced
+
+**Solution:**
+- Close the standard file descriptors if you touched them with `dup2()`, or run the tester with the `--no-stdfds` flag.
 
 By default, the tester uses the `--track-fds=all` flag for valgrind to track file descriptor leaks.<br>
 The difference to `--track-fds=yes` is that it also tracks fds `0`, `1` and `2` (stdin, stdout and stderr).<br>
@@ -122,10 +125,10 @@ In turn that means after redirecting stdout to a file and executing the builtin,
 
 If you don't want the standard fds to ever get reported as leaking, you can run the tester with the `--no-stdfds` flag.
 
-**Solution:**
-- Close the standard file descriptors if you touched them with `dup2()`, or run the tester with the `--no-stdfds` flag.
-
 ## Bash in the tester behaves differently than in manual testing
+
+**Solution:**
+- When you test bash's behavior manually, start bash with the `--posix` flag, or run the tester with the `--non-posix` flag.
 
 The tester runs bash in [POSIX mode](https://www.gnu.org/software/bash/manual/html_node/Bash-POSIX-Mode.html) (`bash --posix`).<br>
 POSIX (Portable Operating System Interface) is a standard ensuring compatibility across Unix-like systems.<br>
@@ -134,9 +137,6 @@ The most relevant differences for minishell are:
 - The export builtin command displays its output in the format required by POSIX (`export` vs `declare -x`)
 
 If you prefer to stick with the normal bash behavior that is not fully POSIX compliant, you can run the tester with the `--non-posix` flag.
-
-**Solution:**
-- When you test bash's behavior manually, start bash with the `--posix` flag, or run the tester with the `--non-posix` flag.
 
 ## The output of minishell looks the same as bash's, but the test fails
 
