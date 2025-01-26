@@ -18,7 +18,7 @@
 
 ---
 
-# Menu
+# Table of Contents
 
 - [Install & Run](#how-to-install-and-run)
 
