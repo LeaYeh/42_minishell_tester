@@ -2,7 +2,7 @@
 
 MINISHELL_PATH=$(pwd)
 EXECUTABLE=minishell
-RUNDIR=$(dirname "$0")
+RUNDIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 DATE=$(date +%Y-%m-%d_%H.%M.%S)
 OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 TMP_OUTDIR=$(mktemp -d)
