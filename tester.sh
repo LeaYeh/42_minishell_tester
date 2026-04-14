@@ -1,9 +1,8 @@
 #!/usr/bin/env -S --default-signal bash
 
-# Change if you store the tester in another PATH
 MINISHELL_PATH=$(pwd)
 EXECUTABLE=minishell
-RUNDIR=$HOME/42_minishell_tester
+RUNDIR=$(dirname "$0")
 DATE=$(date +%Y-%m-%d_%H.%M.%S)
 OUTDIR=$MINISHELL_PATH/mstest_output_$DATE
 TMP_OUTDIR=$(mktemp -d)
